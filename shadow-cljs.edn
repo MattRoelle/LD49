@@ -1,0 +1,26 @@
+;; shadow-cljs configuration
+{:source-paths
+ ["src/dev"
+  "src/main"
+  "src/test"]
+
+ :dependencies
+ [[reagent "1.1.0"]]
+
+ :builds
+ {:app {:target :browser
+        :output-dir "public/js"
+        :asset-path "/js"
+        :compiler-options {:source-map true}
+        :js-options {:entry-keys ["main"]}
+        :devtools {:repl-pprint true
+                   :preloads [shadow.remote.runtime.cljs.browser]
+                            ;; :after-load memo.core/main!
+                   :http-root "public"
+                   :http-port 8080
+
+                            ;; Needed for Cordova since cordova runs on a 
+                            ;; custom host `app.mochi.cards` and by default
+                            ;; shadow-cljs looks for js/document.location.host
+                   :devtools-url "http://localhost:9630"}
+        :modules {:main {:entries [app.core]}}}}}
