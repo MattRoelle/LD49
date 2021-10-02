@@ -1,7 +1,14 @@
 (ns app.presentation
   (:require [app.game :as g]
             [app.state :as s]
-            [reagent.core :as r]))
+            [reagent.core :as r]
+            ["lottie-react" :as Lottie]))
+
+(js/console.log Lottie)
+
+(defn anim [k]
+  [(r/adapt-react-class Lottie/default)
+   {:animationData (aget (.-animations (.-ld49 js/window)) k)}])
 
 (def light-green "#92cf72")
 (def dark-green "#7ab05d")
@@ -20,7 +27,8 @@
                    :transition "all 100ms ease-out"
                    :background-color "white"
                    :border-radius 100
-                   :transform (str "translate3d(" (* cell-size (first (:pos a))) "px," (* cell-size (second (:pos a))) "px,0px)")}}]))
+                   :transform (str "translate3d(" (* cell-size (first (:pos a))) "px," (* cell-size (second (:pos a))) "px,0px)")}}
+     (anim "a1")]))
 
 (defn get-board-position [state pointer-event]
   (let [client-rect (.getBoundingClientRect (.-target pointer-event))
@@ -112,6 +120,9 @@
                      :border-radius 100
                      :transform (str "translate3d(" (* cell-size (first @mouse-pos)) "px," (second @mouse-pos) "px,0px)")}}])))
 
+(defn loading []
+  [:h1 "Loading..."])
+
 (defonce mousemove-hook
   (.addEventListener
    js/window
@@ -127,3 +138,8 @@
    (farm state)
    (inventory state)
    (cursor-animal state)])
+
+(defn root []
+  (cond
+    (= @s/screen :loading) (loading)
+    :else (game @s/game-state)))

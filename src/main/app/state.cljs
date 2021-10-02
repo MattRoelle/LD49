@@ -12,6 +12,7 @@
 
 (def game-state (r/atom initial-state))
 (def is-simulating (r/atom false))
+(def screen (r/atom :in-game))
 
 (defn add-animal-to-inventory! [atype]
   (swap! game-state g/add-animal-to-inventory atype))
@@ -27,6 +28,9 @@
 
 (defn next-day! []
   (swap! game-state g/next-day))
+
+(defn set-screen! [s]
+  (reset! screen s))
 
 (defn step-sim-until-done!
   ([] 
@@ -52,3 +56,4 @@
               (assoc :sz (:sz level))
               (assoc :animals (mapv g/new-animal (map g/animal-types
                                                       (first (:rounds level))))))))
+

@@ -8,8 +8,7 @@
 
 (defn root []
   [:div
-   (p/game @s/game-state)
-   [:button {:on-click #(s/step-game-state!)} "Step"]])
+   (p/root)])
 
 (defn mount-app-root []
   (rd/render [root]
