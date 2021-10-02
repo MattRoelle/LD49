@@ -1,9 +1,9 @@
 (ns app.levels)
 
 (def level-1 {:name "Level 1"
-              :sz 4
-              :day-len 11
-              :rounds [[:chicken]
+              :sz 30
+              :day-len 21
+              :rounds [[:chicken :chicken :chicken :chicken :chicken]
                        [:chicken]
                        [:chicken]]})
 

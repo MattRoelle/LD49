@@ -4,11 +4,11 @@
             [app.levels :as l]
             [app.game :as g]
             [app.state :as s]
-            [app.views :as v]))
+            [app.presentation :as p]))
 
 (defn root []
   [:div
-   (v/game @s/game-state)
+   (p/game @s/game-state)
    [:button {:on-click #(s/step-game-state!)} "Step"]])
 
 (defn mount-app-root []
@@ -20,5 +20,10 @@
 (comment
   (s/add-animal-to-inventory! g/chicken)
   (s/load-level! l/level-1)
-  (js/console.log "s: " (clj->js @s/game-state)))
+  (s/load-level! l/level-2)
+  (js/console.log (clj->js @s/game-state)))
 
+
+(defonce init
+  (do
+    (s/load-level! l/level-1)))

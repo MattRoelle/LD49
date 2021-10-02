@@ -33,6 +33,20 @@
           (assoc-in [:animals ix] (assoc animal :pos pos)))
       state)))
 
+(defn next-day [state]
+  (let [day (inc (:day state))
+        level (:level state)
+        rounds (:rounds level)
+        round (nth rounds day)]
+    (if round
+      (-> state
+          (assoc :animals
+                 (vec (concat
+                       (:animals state)
+                       (mapv new-animal
+                             (map animal-types round))))))
+      (assoc state :win true))))
+
 (defn active-animals [state]
   (filter #(not= :inv (:pos %)) (:animals state)))
 
@@ -71,9 +85,6 @@
              final-pos (last p)
              not-me-final-positions (set (drop-nth ix final-positions))
              not-me-rev-paths (set (drop-nth ix reversed-paths))]
-        ;;  (js/console.log #js{:animal (clj->js a)
-        ;;                      :end-pos (clj->js final-pos)
-        ;;                      :others (clj->js not-me-final-positions)})
          (when (or
                 ; Two animals have the same final position
                 (some #(= % final-pos) not-me-final-positions)
@@ -86,6 +97,11 @@
   (let [animals (active-animals state)
         paths (map animal-get-turn-path animals)
         collisions (get-colliding-animals animals paths)
-        new-animals (map-indexed #(animal-move-along-path %2 (nth paths %1)) animals)]
+        new-animals (vec (map-indexed #(animal-move-along-path %2 (nth paths %1)) animals))]
     (js/console.log (clj->js collisions))
-    (assoc state :animals (vec new-animals))))
+    (if (> (count collisions) 0)
+      (-> state
+          (assoc :game-over true)
+          (assoc :collisions collisions)
+          (assoc :animals  new-animals))
+      (assoc state :animals  new-animals))))

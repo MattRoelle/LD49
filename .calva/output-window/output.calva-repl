@@ -392,3 +392,48 @@ cljs꞉app.core꞉> 
 cljs꞉app.core꞉> 
 {:board [], :sz 8, :day 0, :day-len 11, :animals [#app.game.FarmAnimal{:id #uuid "07af1462-7f3c-430d-a475-e67c1631ee55", :atype {:name "Chicken", :path [[-1 0] [0 1] [1 0] [0 -1]]}, :pos :inv, :ix 0}], :moving-animal nil}
 cljs꞉app.core꞉> 
+{:board [], :sz 8, :day 0, :day-len 11, :animals [#app.game.FarmAnimal{:id #uuid "d756b19c-65d4-42c0-87c8-1aa20db4d277", :atype {:name "Chicken", :path [[-1 0] [0 1] [1 0] [0 -1]]}, :pos :inv, :ix 0}], :moving-animal nil}
+cljs꞉app.core꞉> 
+{:board [], :sz 4, :day 0, :day-len 11, :animals [#app.game.FarmAnimal{:id #uuid "3e20c153-0048-4708-8332-bb96e0f32dea", :atype {:name "Chicken", :path [[-1 0] [0 1] [1 0] [0 -1]]}, :pos :inv, :ix 0}], :moving-animal nil}
+cljs꞉app.core꞉> 
+nil
+cljs꞉app.core꞉> 
+{:board [], :sz 3, :day 0, :day-len 11, :animals [#app.game.FarmAnimal{:id #uuid "c6a392ec-d4e1-43bc-bdfd-fcc413114105", :atype {:name "Chicken", :path [[-1 0] [0 1] [1 0] [0 -1]]}, :pos :inv, :ix 0}], :moving-animal nil}
+cljs꞉app.core꞉> 
+{:board [], :sz 3, :day 0, :day-len 11, :animals [#app.game.FarmAnimal{:id #uuid "c6a392ec-d4e1-43bc-bdfd-fcc413114105", :atype {:name "Chicken", :path [[-1 0] [0 1] [1 0] [0 -1]]}, :pos :inv, :ix 0} #app.game.FarmAnimal{:id #uuid "52d75674-55e2-4104-bcee-bb9b3a9ca5fa", :atype {:name "Chicken", :path [[-1 0] [0 1] [1 0] [0 -1]]}, :pos :inv, :ix 0}], :moving-animal nil}
+cljs꞉app.core꞉> 
+{:board [], :sz 3, :day 0, :day-len 11, :animals [#app.game.FarmAnimal{:id #uuid "c6a392ec-d4e1-43bc-bdfd-fcc413114105", :atype {:name "Chicken", :path [[-1 0] [0 1] [1 0] [0 -1]]}, :pos :inv, :ix 0} #app.game.FarmAnimal{:id #uuid "52d75674-55e2-4104-bcee-bb9b3a9ca5fa", :atype {:name "Chicken", :path [[-1 0] [0 1] [1 0] [0 -1]]}, :pos :inv, :ix 0} #app.game.FarmAnimal{:id #uuid "fd997e1a-8225-4702-8cca-b5573acb26cf", :atype {:name "Chicken", :path [[-1 0] [0 1] [1 0] [0 -1]]}, :pos :inv, :ix 0}], :moving-animal nil}
+cljs꞉app.core꞉> 
+{:board [], :sz 3, :day 0, :day-len 11, :animals [#app.game.FarmAnimal{:id #uuid "c6a392ec-d4e1-43bc-bdfd-fcc413114105", :atype {:name "Chicken", :path [[-1 0] [0 1] [1 0] [0 -1]]}, :pos :inv, :ix 0} #app.game.FarmAnimal{:id #uuid "52d75674-55e2-4104-bcee-bb9b3a9ca5fa", :atype {:name "Chicken", :path [[-1 0] [0 1] [1 0] [0 -1]]}, :pos :inv, :ix 0} #app.game.FarmAnimal{:id #uuid "fd997e1a-8225-4702-8cca-b5573acb26cf", :atype {:name "Chicken", :path [[-1 0] [0 1] [1 0] [0 -1]]}, :pos :inv, :ix 0} #app.game.FarmAnimal{:id #uuid "3fdef4b6-b88e-42ea-995c-c3a8d9d9ed8d", :atype {:name "Chicken", :path [[-1 0] [0 1] [1 0] [0 -1]]}, :pos :inv, :ix 0}], :moving-animal nil}
+cljs꞉app.core꞉> 
+{:board [], :sz 4, :day 0, :day-len 11, :animals [#app.game.FarmAnimal{:id #uuid "a77b80eb-c0d8-4929-aaf3-678633d28072", :atype {:name "Chicken", :path [[-1 0] [0 1] [1 0] [0 -1]]}, :pos :inv, :ix 0}], :moving-animal nil}
+cljs꞉app.core꞉> 
+{:board [], :sz 4, :day 0, :day-len 11, :animals [#app.game.FarmAnimal{:id #uuid "00d64a9a-a55e-4878-9d83-82363ac728c2", :atype {:name "Chicken", :path [[-1 0] [0 1] [1 0] [0 -1]]}, :pos :inv, :ix 0}], :moving-animal nil, :game-over false}
+cljs꞉app.core꞉> 
+nil
+cljs꞉app.core꞉> 
+{:board [], :sz 4, :day 0, :day-len 11, :animals [#app.game.FarmAnimal{:id #uuid "96d776d2-b334-47cc-8a35-890150fcae5d", :atype {:name "Chicken", :path [[-1 0] [0 1] [1 0] [0 -1]]}, :pos :inv, :ix 0}], :moving-animal nil, :game-over false, :level {:name "Level 1", :sz 4, :day-len 11, :rounds [[:chicken] [:chicken] [:chicken]]}}
+cljs꞉app.core꞉> 
+{:board [], :sz 6, :day 0, :day-len 11, :animals [#app.game.FarmAnimal{:id #uuid "4bc85bce-b0a7-4710-b113-780caef3b825", :atype {:name "Chicken", :path [[-1 0] [0 1] [1 0] [0 -1]]}, :pos :inv, :ix 0}], :moving-animal nil, :game-over false, :level {:name "Level 1", :sz 6, :day-len 11, :rounds [[:chicken] [:chicken] [:chicken]]}}
+cljs꞉app.core꞉> 
+{:board [], :sz 8, :day 0, :day-len 11, :animals [#app.game.FarmAnimal{:id #uuid "d951b97d-7665-43e4-b248-89efc1a18f12", :atype {:name "Chicken", :path [[-1 0] [0 1] [1 0] [0 -1]]}, :pos :inv, :ix 0}], :moving-animal nil, :game-over false, :level {:name "Level 2", :sz 8, :day-len 11, :rounds [[:chicken] [:chicken] [:chicken]]}}
+cljs꞉app.core꞉> 
+{:board [], :sz 20, :day 0, :day-len 11, :animals [#app.game.FarmAnimal{:id #uuid "999a282a-29fc-45f9-b5f5-7fb9ded05d55", :atype {:name "Chicken", :path [[-1 0] [0 1] [1 0] [0 -1]]}, :pos :inv, :ix 0} #app.game.FarmAnimal{:id #uuid "2213360b-6d20-4205-b747-b5e3e82ee9de", :atype {:name "Chicken", :path [[-1 0] [0 1] [1 0] [0 -1]]}, :pos :inv, :ix 0} #app.game.FarmAnimal{:id #uuid "8053acab-0cf2-44f1-958c-292f053ef529", :atype {:name "Chicken", :path [[-1 0] [0 1] [1 0] [0 -1]]}, :pos :inv, :ix 0}], :moving-animal nil, :game-over false, :level {:name "Level 1", :sz 20, :day-len 11, :rounds [[:chicken :chicken :chicken] [:chicken] [:chicken]]}}
+cljs꞉app.core꞉> 
+{:board [], :sz 8, :day 0, :day-len 11, :animals [#app.game.FarmAnimal{:id #uuid "a39aa9e9-01b7-48bf-82c6-9d089bd2ab59", :atype {:name "Chicken", :path [[-1 0] [0 1] [1 0] [0 -1]]}, :pos :inv, :ix 0}], :moving-animal nil, :game-over false, :level {:name "Level 2", :sz 8, :day-len 11, :rounds [[:chicken] [:chicken] [:chicken]]}}
+cljs꞉app.core꞉> 
+{:board [], :sz 20, :day 0, :day-len 11, :animals [#app.game.FarmAnimal{:id #uuid "d6579233-7b81-42e9-a1da-bccfa00830ce", :atype {:name "Chicken", :path [[-1 0] [0 1] [1 0] [0 -1]]}, :pos :inv, :ix 0} #app.game.FarmAnimal{:id #uuid "827ecd73-5c2a-4d2d-95b1-989becc0fa3e", :atype {:name "Chicken", :path [[-1 0] [0 1] [1 0] [0 -1]]}, :pos :inv, :ix 0} #app.game.FarmAnimal{:id #uuid "f0a8e926-fd7a-42cb-813a-cd44e5f5f0c3", :atype {:name "Chicken", :path [[-1 0] [0 1] [1 0] [0 -1]]}, :pos :inv, :ix 0}], :moving-animal nil, :game-over false, :level {:name "Level 1", :sz 20, :day-len 11, :rounds [[:chicken :chicken :chicken] [:chicken] [:chicken]]}}
+cljs꞉app.core꞉> 
+{:board [], :sz 30, :day 0, :day-len 11, :animals [#app.game.FarmAnimal{:id #uuid "baa73906-2686-4dc8-bc57-915abe673f15", :atype {:name "Chicken", :path [[-1 0] [0 1] [1 0] [0 -1]]}, :pos :inv, :ix 0} #app.game.FarmAnimal{:id #uuid "5a342dbe-5ee2-4e87-9500-22a2529925ba", :atype {:name "Chicken", :path [[-1 0] [0 1] [1 0] [0 -1]]}, :pos :inv, :ix 0} #app.game.FarmAnimal{:id #uuid "7588efcd-a92d-4f97-ac8d-730bbf9fd8c9", :atype {:name "Chicken", :path [[-1 0] [0 1] [1 0] [0 -1]]}, :pos :inv, :ix 0} #app.game.FarmAnimal{:id #uuid "f2be302b-2e5e-4fc1-8efd-1550300050ca", :atype {:name "Chicken", :path [[-1 0] [0 1] [1 0] [0 -1]]}, :pos :inv, :ix 0} #app.game.FarmAnimal{:id #uuid "482875f8-dd63-4150-911b-ce3e60b2ffdf", :atype {:name "Chicken", :path [[-1 0] [0 1] [1 0] [0 -1]]}, :pos :inv, :ix 0}], :moving-animal nil, :game-over false, :level {:name "Level 1", :sz 30, :day-len 11, :rounds [[:chicken :chicken :chicken :chicken :chicken] [:chicken] [:chicken]]}}
+cljs꞉app.core꞉> 
+nil
+; ------ WARNING - :fn-arity -----------------------------------------------------
+;  Resource: <eval>:1:1
+ Wrong number of args (0) passed to app.state/load-level!
+--------------------------------------------------------------------------------
+
+cljs꞉app.core꞉> 
+{:board [], :sz 30, :day 0, :day-len 11, :animals [#app.game.FarmAnimal{:id #uuid "51c1ef67-8e1c-458c-a591-d67c19969b76", :atype {:name "Chicken", :path [[-1 0] [0 1] [1 0] [0 -1]]}, :pos :inv, :ix 0} #app.game.FarmAnimal{:id #uuid "056c8309-9999-48da-9aad-110e79e4da25", :atype {:name "Chicken", :path [[-1 0] [0 1] [1 0] [0 -1]]}, :pos :inv, :ix 0} #app.game.FarmAnimal{:id #uuid "433a528e-6d11-44ca-9e6b-e73ff8cde27b", :atype {:name "Chicken", :path [[-1 0] [0 1] [1 0] [0 -1]]}, :pos :inv, :ix 0} #app.game.FarmAnimal{:id #uuid "fff7ed5c-cb3d-4a8c-b8fb-071012c3b1aa", :atype {:name "Chicken", :path [[-1 0] [0 1] [1 0] [0 -1]]}, :pos :inv, :ix 0} #app.game.FarmAnimal{:id #uuid "45ac26cf-6915-4b93-b28f-f3d702cd02ce", :atype {:name "Chicken", :path [[-1 0] [0 1] [1 0] [0 -1]]}, :pos :inv, :ix 0}], :moving-animal nil, :game-over false, :level {:name "Level 1", :sz 30, :day-len 31, :rounds [[:chicken :chicken :chicken :chicken :chicken] [:chicken] [:chicken]]}}
+cljs꞉app.core꞉> 
+{:board [], :sz 30, :day 0, :animals [#app.game.FarmAnimal{:id #uuid "b988b22c-e98e-4c40-89cf-d36ffb9a20d0", :atype {:name "Chicken", :path [[-1 0] [0 1] [1 0] [0 -1]]}, :pos :inv, :ix 0} #app.game.FarmAnimal{:id #uuid "fb1283fd-a299-43d5-835a-2e89167dac6d", :atype {:name "Chicken", :path [[-1 0] [0 1] [1 0] [0 -1]]}, :pos :inv, :ix 0} #app.game.FarmAnimal{:id #uuid "52454f64-2edf-4883-99e1-cd7ce117ea53", :atype {:name "Chicken", :path [[-1 0] [0 1] [1 0] [0 -1]]}, :pos :inv, :ix 0} #app.game.FarmAnimal{:id #uuid "d39fcf4b-b146-4bbf-b911-8ee94c1e1fcb", :atype {:name "Chicken", :path [[-1 0] [0 1] [1 0] [0 -1]]}, :pos :inv, :ix 0} #app.game.FarmAnimal{:id #uuid "1ec23d99-40c0-4cba-839f-b09685da3fbe", :atype {:name "Chicken", :path [[-1 0] [0 1] [1 0] [0 -1]]}, :pos :inv, :ix 0}], :moving-animal nil, :game-over false, :level {:name "Level 1", :sz 30, :day-len 31, :rounds [[:chicken :chicken :chicken :chicken :chicken] [:chicken] [:chicken]]}}
+cljs꞉app.core꞉> 

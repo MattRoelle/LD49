@@ -1,11 +1,10 @@
-(ns app.views
+(ns app.presentation
   (:require [app.game :as g]
             [app.state :as s]
             [reagent.core :as r]))
 
 (def light-green "#92cf72")
 (def dark-green "#7ab05d")
-;(def cell-size 50)
 (def board-size 600)
 
 (defn get-cell-size [state]
@@ -90,7 +89,10 @@
                  :width 200
                  :height board-size}}
    (map (partial inventory-animal state)
-        (g/inv-animals state))])
+        (g/inv-animals state))
+   [:button {:disabled (> (count (g/inv-animals state)) 0)
+             :on-click #(s/step-sim-until-done!)}
+    "End Day"]])
 
 (def mouse-pos (r/atom [0 0]))
 
