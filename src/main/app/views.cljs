@@ -9,7 +9,7 @@
         x (first position)
         y (second position)]
     [:div {:key (:id animal)
-           :style {:position :relative
+           :style {:position "absolute"
                    :z-index 50
                    :width cell-size
                    :height cell-size
@@ -43,5 +43,6 @@
                  :border-radius 4
                  :width (* cell-size (:w state))
                  :height (* cell-size (:h state))
-                 :margin "50px auto"}}
+                 :margin "50px auto"
+                 :position "relative"}}
    (map animal (:animals state))])

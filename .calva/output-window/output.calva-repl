@@ -5,7 +5,7 @@
 ; Happy coding! ♥️
 
 ; Jacking in...
-; Starting Jack-in Terminal: npx.cmd shadow-cljs -d cider/cider-nrepl:0.26.0 watch :app
+; Starting Jack-in Terminal: npx shadow-cljs -d cider/cider-nrepl:0.26.0 watch :app
 ; Hooking up nREPL sessions...
 ; Connected session: clj
 ; TIPS: 

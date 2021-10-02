@@ -8,8 +8,20 @@
   {:board []
    :w 8
    :h 8
-   :animals [(g/FarmAnimal. (random-uuid) g/chicken [4 4] 0)
-             (g/FarmAnimal. (random-uuid) g/chicken [4 4] 2)]})
+   :animals [(g/FarmAnimal. (random-uuid) g/chicken2 [5 5] 0)
+             (g/FarmAnimal. (random-uuid) g/chicken2 [1 5] 3)
+             (g/FarmAnimal. (random-uuid) g/chicken2 [5 4] 0)
+             (g/FarmAnimal. (random-uuid) g/chicken2 [1 4] 3)
+             (g/FarmAnimal. (random-uuid) g/chicken2 [5 6] 0)
+             (g/FarmAnimal. (random-uuid) g/chicken2 [1 6] 3)
+             (g/FarmAnimal. (random-uuid) g/chicken2 [5 7] 0)
+             (g/FarmAnimal. (random-uuid) g/chicken2 [1 7] 3)
+             (g/FarmAnimal. (random-uuid) g/chicken [2 1] 0)
+             (g/FarmAnimal. (random-uuid) g/chicken [1 1] 2)
+             (g/FarmAnimal. (random-uuid) g/chicken [4 1] 0)
+             (g/FarmAnimal. (random-uuid) g/chicken [3 1] 2)
+             (g/FarmAnimal. (random-uuid) g/chicken [6 1] 0)
+             (g/FarmAnimal. (random-uuid) g/chicken [5 1] 2)]})
 
 (def game-state (r/atom initial-state))
 
