@@ -52,8 +52,8 @@ html {
     box-sizing: border-box;
 }
 
-.btn:hover {
-    background-color: white;
+.game-btn:hover {
+    outline: 4px solid white;
 }
 
 .farm-animal .path-preview {
@@ -62,4 +62,8 @@ html {
 
 .farm-animal.idle:hover .path-preview {
     display: block;
+}
+
+.inventory-animal:hover {
+    outline: 4px solid white;
 }

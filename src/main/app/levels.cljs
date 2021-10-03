@@ -1,12 +1,11 @@
 (ns app.levels)
 
-(def level-1 {:name "Level 1"
-              :sz 4
+(def level-1 {:name "Tutorial"
+              :sz 3
               :rounds [[:chicken]
-                       [:chicken]
                        [:chicken]]})
 
-(def level-2 {:name "Level 2"
+(def level-2 {:name "The Hen House"
               :sz 4
               :rounds [[:chicken :chicken2]
                        [:chicken2]

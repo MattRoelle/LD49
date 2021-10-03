@@ -141,3 +141,41 @@ cljs꞉app.core꞉> 
 cljs꞉app.core꞉> 
 ([1 0] [0 1] [-1 0])
 cljs꞉app.core꞉> 
+{:board [], :sz 5, :day 0, :level-number 0, :animals [#app.game.FarmAnimal{:id #uuid "5c402897-97ba-4ecd-9086-ea27458cff96", :atype {:name "Cow", :anim-key "cow-idle", :path [[0 -1] [0 -1] [1 0] [1 0] [0 1] [0 1] [-1 0] [-1 0]]}, :pos :inv, :ix 0, :flipped false, :pending true} #app.game.FarmAnimal{:id #uuid "d638c5f9-f5a0-4b73-92d5-84fb676f5b31", :atype {:name "Brown Chickn", :anim-key "chicken2-idle", :path [[1 0] [1 0] [-1 0] [-1 0]]}, :pos :inv, :ix 0, :flipped false, :pending true} #app.game.FarmAnimal{:id #uuid "a32439e3-19ee-4d82-b68e-f4ecdcb54ffa", :atype {:name "Chickn", :anim-key "chicken-idle", :path [[-1 0] [0 1] [1 0] [0 -1]]}, :pos :inv, :ix 0, :flipped false, :pending true}], :moving-animal nil, :game-over false, :level {:name "Level 4", :sz 5, :rounds [[:cow :chicken2 :chicken] [:chicken :chicken2] [:chicken]]}}
+cljs꞉app.core꞉> 
+#'app.game/place-animal
+cljs꞉app.game꞉> 
+#'app.game/place-animal
+cljs꞉app.game꞉> 
+#'app.game/place-animal
+cljs꞉app.game꞉> 
+nil
+; ------ WARNING - :undeclared-var -----------------------------------------------
+;  Resource: <eval>:1:1
+ Can't take value of macro cljs.core/let
+--------------------------------------------------------------------------------
+
+cljs꞉app.game꞉> 
+()
+cljs꞉app.game꞉> 
+nil
+; ------ WARNING - :undeclared-var -----------------------------------------------
+;  Resource: <eval>:1:65
+ Use of undeclared Var app.game/new-state
+--------------------------------------------------------------------------------
+
+; ------ WARNING - :undeclared-var -----------------------------------------------
+;  Resource: <eval>:3:20
+ Use of undeclared Var app.game/new-state
+--------------------------------------------------------------------------------
+
+; ------ WARNING - :undeclared-var -----------------------------------------------
+;  Resource: <eval>:4:13
+ Use of undeclared Var app.game/new-state
+--------------------------------------------------------------------------------
+
+cljs꞉app.game꞉> 
+{:board [], :sz 5, :day 0, :level-number 0, :animals [#app.game.FarmAnimal{:id #uuid "158d2f8e-ab71-439c-b6e7-bb6807d138a7", :atype {:name "Cow", :anim-key "cow-idle", :path [[0 -1] [0 -1] [1 0] [1 0] [0 1] [0 1] [-1 0] [-1 0]]}, :pos :inv, :ix 0, :flipped false, :pending true} #app.game.FarmAnimal{:id #uuid "83224bd2-8d73-4bcf-9b57-c824ec6cbb6e", :atype {:name "Brown Chickn", :anim-key "chicken2-idle", :path [[1 0] [1 0] [-1 0] [-1 0]]}, :pos :inv, :ix 0, :flipped false, :pending true} #app.game.FarmAnimal{:id #uuid "e661b7cd-021f-4350-9c0f-9774f04ca68c", :atype {:name "Chickn", :anim-key "chicken-idle", :path [[-1 0] [0 1] [1 0] [0 -1]]}, :pos :inv, :ix 0, :flipped false, :pending true}], :moving-animal nil, :game-over false, :level {:name "Level 4", :sz 5, :rounds [[:cow :chicken2 :chicken] [:chicken :chicken2] [:chicken]]}}
+cljs꞉app.core꞉> 
+"4px solid black"
+cljs꞉app.presentation꞉> 

@@ -34,6 +34,7 @@
 (defonce mouse-pos (r/atom [0 0]))
 (defonce board-hover-pos (r/atom nil))
 (defonce game-over (r/atom false))
+(defonce show-tutorial (r/atom true))
 
 (defn main-menu! []
   (reset! game-state initial-state)
@@ -47,6 +48,12 @@
 
 (defn place-animal-on-board! [pos]
   (swap! game-state g/place-animal pos))
+
+(defn move-animal-back-to-inv! [state a]
+  (let [id (:id a)
+        ix-map (apply merge (map-indexed (fn [ix a2] {(:id a2) ix}) (:animals state)))]
+    (js/console.log "ix-map" (clj->js ix-map))
+    (swap! game-state assoc-in [:animals (get ix-map id)] (assoc a :pos :inv))))
 
 (defn step-game-state! []
   (swap! game-state g/simulate))
@@ -69,7 +76,7 @@
    (if (:game-over @game-state)
      (reset! is-simulating false)
      (if (<= c (+ start-time n-hours))
-       (js/setTimeout #(step-sim-until-done! (inc c)) 150)
+       (js/setTimeout #(step-sim-until-done! (inc c)) 200)
        (do
          (next-day!)
          (reset! is-simulating false))))))
@@ -156,7 +163,8 @@
         ;;       (< dy 0) "rotate(-90deg)  translate3d(-20px, 0, 0)"
         ;;       (> dy 0) "rotate(90deg)  translate3d(20px, 0, 0)")
         ]
-    [:div {:style {:position "fixed"
+    [:div {:key (str x y dx dy)
+           :style {:position "fixed"
                    :left (+ cx  (* x cell-size))
                    :top (+ cy (* y cell-size))
                   ; :opacity 0.5
@@ -177,26 +185,30 @@
   (when-let [moving-animal (g/get-moving-animal state)]
     (animal-path-preview state moving-animal @board-hover-pos)))
 
-(defn farm-animal [state a]
+(defn farm-animal [state game-over is-simulating a]
   (let [cell-size (get-cell-size state)
         [x y] (:pos a)
         x (* cell-size x)
         y (* cell-size y)
         id (:id a)]
-    [:div {:class (str "farm-animal "
-                       (when (and (not @game-over)
-                                  (not @is-simulating))
+    [:div {:key id
+           :class (str "farm-animal "
+                       (when (and (not game-over)
+                                  (not is-simulating))
                          "idle"))}
      [:div {:id id
-            :key id
-            :style {:position "absolute"
-                    :z-index 50
-                    :width cell-size
-                    :height cell-size
-                    :transition "all 100ms ease-out"
-                    :transform (str "translate3d(" x "px," y "px,0px) "
-                                    "scaleX(" (if (:flipped a) "-1" "1") ")")}}
-      (anim (:anim-key (:atype a)))]
+
+            :style (merge {:position "absolute"
+                           :z-index 50
+                           :width cell-size
+                           :height cell-size
+                           :transform (str "translate3d(" x "px," y "px,0px) "
+                                           "scaleX(" (if (:flipped a) "-1" "1") ")")}
+                          (when (not game-over) {:transition "all 150ms ease-in-out"}))}
+      (anim (:anim-key (:atype a)))
+      (when (:pending a)
+        [:p {:on-click #(move-animal-back-to-inv! state a)
+             :style {:z-index 300 :background "rgba(0, 0, 0, 0.5)" :padding 4 :margin 0 :position "absolute" :cursor :pointer :top 0 :right 0 :font-size 30 :line-height "30px" :color "white"}} "X"])]
      [:div {:class "path-preview" :position "fixed" :top 0 :left 0}
       (animal-path-preview state a (:pos a))]]))
 
@@ -251,42 +263,49 @@
                    :position "relative"}
            :on-click #(farm-click-handler state %)
            :on-mouse-move #(farm-mouse-move-handler state %)}
-     (map (partial farm-animal state) (g/active-animals state))
+     (map (partial farm-animal state @game-over @is-simulating) (g/active-animals state))
      (moving-animal-path-preview state)
      (hover-highlight state)
      (when (:game-over state) (game-over-highlight state))]))
 
-(defn button [label on-click]
-  [:div {:class "btn"
-         :on-click on-click
-         :style {:background-color btn-primary
-                 :hover {:background-color btn-hl}
-                 :margin-top 20
-                 :padding 20
-                 :text-align "center"
-                 :border-right (str "4px solid" btn-side)
-                 :border-bottom (str "4px solid" btn-side)
-                 :border-top (str "2px solid" btn-hl)
-                 :border-left (str "2px solid" btn-hl)
-                 :box-shadow "4px 4px 0px 0px rgba(0, 0, 0, 0.1)"
-                 :border-radius 4}}
-   [:p {:style {:font-size 18}} label]])
+(defn button
+  ([label on-click] (button label on-click {}))
+  ([label on-click styles]
+   [:div {:class "game-btn"
+          :key label
+          :on-click on-click
+          :style (merge {:background-color btn-primary
+                         :hover {:background-color btn-hl}
+                         :margin-top 20
+                         :padding 20
+                         :cursor "pointer"
+                         :text-align "center"
+                         :border-right (str "4px solid" btn-side)
+                         :border-bottom (str "4px solid" btn-side)
+                         :border-top (str "2px solid" btn-hl)
+                         :border-left (str "2px solid" btn-hl)
+                         :box-shadow "4px 4px 0px 0px rgba(0, 0, 0, 0.1)"
+                         :border-radius 4} styles)}
+    [:p {:style {:font-size 18}} label]]))
 
 (defn inventory-animal [state animal-list]
   (let [a (first animal-list)
-        atype (:atype a)]
+        atype (:atype a)
+        moving-animal (g/get-moving-animal state)]
     [:div {:key (:name atype)
+           :class "inventory-animal"
            :style (merge
                    {:background-color "rgba(0, 0, 0, 0.1)"
                     :padding 5
                     :margin-top 10
+                    :border-radius 4
+                    :cursor "pointer"
                     :display "flex"
                     :justify-content "center"
                     :align-items "center"}
-                ;;  (when
-                ;;   (= (:moving-animal state) (:id a))
-                ;;    {:border "2px solid blue"})
-                   )
+                   (when
+                    (= (:atype moving-animal) atype)
+                     {:outline "4px solid yellow"}))
            :on-click #(pick-up-animal! (first animal-list))}
      [:div {:style {:width 50}} (anim (:anim-key atype))]
      [:p {:style {:margin-left 10 :font-size 32}} (str "x" (count animal-list))]]))
@@ -313,12 +332,19 @@
 
 (defn header [state]
   [:div {:style {:background-color "#dba469"
+                 :display "flex"
+
                  :padding 20
                  :margin-bottom 20
                  :outline "4px solid black"
+                 :flex-direction "row"
+                 :align-items "center"
+                 :justify-content "center"
                  :border-radius 4
                  :width "100%"}}
-   [:h2 (:name (:level state))]])
+   [:h2 {:style {:flex 1}} (:name (:level state))]
+   (button "Help" #(reset! show-tutorial true) {:margin 0})
+   (button "Menu" #(main-menu!) {:margin-left 10 :margin-top 0})])
 
 (defn sidebar [state]
   [:div {:style {:background-color "#dba469"
@@ -410,6 +436,24 @@
                 :onComplete #(tween-to-animal 0)})))
   [:div])
 
+(defn tutorial-screen []
+  [:div {:style {:width 600
+                 :margin "0 auto"
+                 :position "absolute"
+                 :top (if @show-tutorial 100 -1000)
+                 :border-radius 4
+                 :z-index 2000
+                 :transition "all 500ms ease-in-out"
+                 :border "4px solid black"
+                 :background "#dba469"
+                 :padding 40}}
+   [:h1 {:style {:text-align "center" :margin-bottom 30}} "Welcome to The Funny Farm"]
+   [:p {:style {:font-size 20 :margin-bottom 20 :line-height "28px"}} "The funny farm is a home for mentally unstable farm animals. It's where farmers send their \"special\" animals that they don't have the resources to deal with on their own."]
+   [:p {:style {:font-size 20 :margin-bottom 20 :line-height "28px"}} "These animals " [:strong "LOVE "] "their routines. Each day new animals arrive at the farm. Arrange them on the board so that they may all go about their days uninterrupted."]
+   [:p {:style {:font-size 20 :margin-bottom 20 :line-height "28px"}} "You " [:strong "DO NOT "] "want to find out what happens when one of their routines gets interrupted..."]
+   [:p {:style {:font-size 20 :margin-bottom 20 :line-height "28px"}} "Good luck!"]
+   (button "Got it" #(reset! show-tutorial false))])
+
 (defn game-screen [state]
   [:div {:style {:width "100%"
                  :height "100%"
@@ -423,6 +467,7 @@
                    :height "100%"
                    :justify-content "center"
                    :margin "0 auto"}}
+     (tutorial-screen)
      (farm state)
      (sidebar state)
      (cursor-animal state)
@@ -437,18 +482,22 @@
                  :background "#56c0e3"}}
    [:div {:style {:width 400 :text-align "center" :padding 40}}
     [:h1 {:style {:margin-bottom 50}} "The Funny Farm"]
-    (button "Play" #(reset! screen :tutorial))]])
+    (button "Play" #(load-level! l/level-1))
+    (button "Levels" #(reset! screen :level-select))]])
 
-(defn tutorial-screen []
+(defn level-select-screen []
   [:div {:style {:display "flex"
                  :width "100%"
                  :height "100%"
                  :justify-content "center"
                  :margin "0 auto"
                  :background "#56c0e3"}}
-   [:div {:style {:width 400 :text-align "center" :padding 40}}
-    [:p {:style {:margin-bottom 50}} "TODO: Instructional copy"]
-    (button "Play" #(load-level! l/level-1))]])
+   [:div {:style {:width 600 :text-align "center" :padding 40}}
+    [:div {:style {:margin-bottom 50 :display "flex" :justify-content "flex-end" :align-items "flex-end"}}
+     [:h1 {:style {:flex 1}} "Select Level"]
+     (button "Back" #(reset! screen :title))]
+    (map (fn [level] (button (:name level) #(load-level! level) { :display "inline-block" :margin 10 :width "45%"})) l/levels)]])
+
 
 (defn victory-screen []
   [:div {:style {:display "flex"
@@ -464,6 +513,6 @@
 (defn root []
   (cond
     (= @screen :title) (title-screen)
-    (= @screen :tutorial) (tutorial-screen)
     (= @screen :victory) (victory-screen)
+    (= @screen :level-select) (level-select-screen)
     :else (game-screen @game-state)))

@@ -1,6 +1,6 @@
 (ns app.game)
 
-(defrecord FarmAnimal [id atype pos ix flipped])
+(defrecord FarmAnimal [id atype pos ix flipped pending])
 
 (def chicken {:name "Chickn" :anim-key "chicken-idle" :path [[-1 0] [0 1] [1 0] [0 -1]]})
 (def chicken2 {:name "Brown Chickn" :anim-key "chicken2-idle" :path [[1 0] [1 0] [-1 0] [-1 0]]})
@@ -14,7 +14,7 @@
    :pig pig})
 
 (defn new-animal [atype]
-  (FarmAnimal. (random-uuid) atype :inv 0 false))
+  (FarmAnimal. (random-uuid) atype :inv 0 false true))
 
 (defn add-animal-to-inventory [state atype]
   (assoc state :animals
@@ -71,9 +71,13 @@
         is-valid-placement (can-place-animal-here state animal pos)
         can-place (and animal is-in-inventory is-valid-placement)]
     (if can-place
-      (-> state
-          (assoc :moving-animal nil)
-          (assoc-in [:animals ix] (assoc animal :pos pos)))
+      (let [new-state (-> state
+                          (assoc :moving-animal nil)
+                          (assoc-in [:animals ix] (assoc animal :pos pos)))
+            new-moveable-animals (filter #(= (:pos %) :inv) (:animals new-state))]
+        (if (> (count new-moveable-animals) 0)
+          (assoc new-state :moving-animal (:id (first new-moveable-animals)))
+          new-state))
       state)))
 
 (defn next-day [state]
@@ -120,7 +124,8 @@
                  [ex ey]
                  (mod (inc (:ix animal))
                       (count (:path (:atype animal))))
-                 (if (< ex sx) true false))))
+                 (if (< ex sx) true false)
+                 false)))
 
 (defn drop-nth [n coll]
   (keep-indexed #(when (not= %1 n) %2) coll))
