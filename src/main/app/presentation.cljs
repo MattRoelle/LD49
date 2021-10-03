@@ -34,6 +34,7 @@
 (defonce mouse-pos (r/atom [0 0]))
 (defonce board-hover-pos (r/atom nil))
 (defonce game-over (r/atom false))
+(defonce doing-game-over-animation (r/atom false))
 (defonce show-tutorial (r/atom true))
 
 (defn main-menu! []
@@ -84,6 +85,7 @@
 (defn load-level! [level]
   (reset! screen :in-game)
   (reset! game-over false)
+  (reset! doing-game-over-animation false)
   (reset! game-state
           (-> initial-state
               (assoc :level-number (:level-number @game-state))
@@ -185,7 +187,7 @@
   (when-let [moving-animal (g/get-moving-animal state)]
     (animal-path-preview state moving-animal @board-hover-pos)))
 
-(defn farm-animal [state game-over is-simulating a]
+(defn farm-animal [state game-over doing-game-over-animation is-simulating a]
   (let [cell-size (get-cell-size state)
         [x y] (:pos a)
         x (* cell-size x)
@@ -204,7 +206,7 @@
                            :height cell-size
                            :transform (str "translate3d(" x "px," y "px,0px) "
                                            "scaleX(" (if (:flipped a) "-1" "1") ")")}
-                          (when (not game-over) {:transition "all 150ms ease-in-out"}))}
+                          (when (not doing-game-over-animation) {:transition "all 150ms ease-in-out"}))}
       (anim (:anim-key (:atype a)))
       (when (:pending a)
         [:p {:on-click #(move-animal-back-to-inv! state a)
@@ -214,15 +216,15 @@
 
 (defn game-over-highlight [state]
   (js/console.log "(:collisions state)" (clj->js (:collisions state)))
-  (let [cell-size (get-cell-size state)]
-    (map (fn [{[x y] :pos}]
-           [:div {:style {:position "absolute"
-                          :left (* x cell-size)
-                          :top (* y cell-size)
-                          :width cell-size
-                          :height cell-size
-                          :background-color "rgba(230, 40, 40, 0.3)"}}])
-         (:collisions state))))
+  (let [cell-size (get-cell-size state)
+        [_ [x y]] (first (:collisions state))]
+    [:div {:class "game-over-highlight"
+           :style {:position "absolute"
+                   :left (* x cell-size)
+                   :top (* y cell-size)
+                   :width cell-size
+                   :height cell-size
+                   :background-color "rgba(230, 40, 40, 0.3)"}}]))
 
 (defn hover-highlight [state]
   (let [cell-size (get-cell-size state)
@@ -263,7 +265,7 @@
                    :position "relative"}
            :on-click #(farm-click-handler state %)
            :on-mouse-move #(farm-mouse-move-handler state %)}
-     (map (partial farm-animal state @game-over @is-simulating) (g/active-animals state))
+     (map (partial farm-animal state @game-over @doing-game-over-animation @is-simulating) (g/active-animals state))
      (moving-animal-path-preview state)
      (hover-highlight state)
      (when (:game-over state) (game-over-highlight state))]))
@@ -311,9 +313,14 @@
      [:p {:style {:margin-left 10 :font-size 32}} (str "x" (count animal-list))]]))
 
 (defn animal-groups [state]
-  (map (fn [[k group]]
-         (inventory-animal state group))
-       (group-by #(:atype %) (g/inv-animals state))))
+  [:div
+
+   (button "Restart" #(load-level! (:level state)))
+   (when (:moving-animal state)
+     (button "Cancel" #(swap! game-state assoc :moving-animal nil)))
+   (map (fn [[k group]]
+          (inventory-animal state group))
+        (group-by #(:atype %) (g/inv-animals state)))])
 
 (defn start-day-btn [state]
   (if (> (count (g/inv-animals state)) 0)
@@ -356,6 +363,9 @@
 
    (animal-groups state)
 
+
+
+
    (if (= @is-simulating true)
      (game-clock state)
      (if (:game-over state)
@@ -364,7 +374,7 @@
         (button "Try again" #(load-level! (:level state)))]
        (if (:win state)
          [:div
-          [:h1 "Level Complete"]
+          [:h1 {:style {:margin-top 20}} "Level Complete"]
           (button "Next Level!" #(next-level!))]
          (start-day-btn state))))])
 
@@ -394,6 +404,7 @@
   (reset! game-over true)
   (let [a (:crazy-animal state)
         animals (:animals state)
+        cell-size (get-cell-size state)
         other-animals (filter #(not= (:id %) (:id a)) animals)
         animals-dom (apply merge
                            (map (fn [x]
@@ -415,7 +426,7 @@
                     cr (.getBoundingClientRect target-dom)
                     tx (- (.-x cr) ox)
                     ty (- (.-y cr) oy)
-                    duration 0.8]
+                    duration 0.5]
                 (.to gsap/gsap a-dom
                      #js {:x tx
                           :y ty
@@ -429,11 +440,17 @@
                                                 :y (* 1000 (.random js/Math))
                                                 :x (* 1000 (.random js/Math))})
                  (* duration 600))))]
-      (.to gsap/gsap a-dom
-           #js {:rotation 720
-                :duration 1
-                :delay 0.5
-                :onComplete #(tween-to-animal 0)})))
+      (js/setTimeout (fn []
+                       (reset! doing-game-over-animation true)
+                       (.to gsap/gsap a-dom
+                            #js {:rotation 1100
+                                 :duration 1
+                                 :scale 1.2
+                                 :x 0
+                                 :y 0
+                                 :delay 0.5
+                                 :ease "bounce.inOut"
+                                 :onComplete #(tween-to-animal 0)})) 500)))
   [:div])
 
 (defn tutorial-screen []
@@ -448,7 +465,7 @@
                  :background "#dba469"
                  :padding 40}}
    [:h1 {:style {:text-align "center" :margin-bottom 30}} "Welcome to The Funny Farm"]
-   [:p {:style {:font-size 20 :margin-bottom 20 :line-height "28px"}} "The funny farm is a home for mentally unstable farm animals. It's where farmers send their \"special\" animals that they don't have the resources to deal with on their own."]
+   [:p {:style {:font-size 20 :margin-bottom 20 :line-height "28px"}} "The funny farm is a home for mentally unstable farm animals. It's where farmers send their stressed out animals to relax."]
    [:p {:style {:font-size 20 :margin-bottom 20 :line-height "28px"}} "These animals " [:strong "LOVE "] "their routines. Each day new animals arrive at the farm. Arrange them on the board so that they may all go about their days uninterrupted."]
    [:p {:style {:font-size 20 :margin-bottom 20 :line-height "28px"}} "You " [:strong "DO NOT "] "want to find out what happens when one of their routines gets interrupted..."]
    [:p {:style {:font-size 20 :margin-bottom 20 :line-height "28px"}} "Good luck!"]
@@ -482,7 +499,7 @@
                  :background "#56c0e3"}}
    [:div {:style {:width 400 :text-align "center" :padding 40}}
     [:h1 {:style {:margin-bottom 50}} "The Funny Farm"]
-    (button "Play" #(load-level! l/level-1))
+    (button "Play" #(load-level! (first l/levels)))
     (button "Levels" #(reset! screen :level-select))]])
 
 (defn level-select-screen []
@@ -496,7 +513,13 @@
     [:div {:style {:margin-bottom 50 :display "flex" :justify-content "flex-end" :align-items "flex-end"}}
      [:h1 {:style {:flex 1}} "Select Level"]
      (button "Back" #(reset! screen :title))]
-    (map (fn [level] (button (:name level) #(load-level! level) { :display "inline-block" :margin 10 :width "45%"})) l/levels)]])
+    (map-indexed (fn [lix level]
+                   (button (:name level)
+                           (fn []
+                             (swap! game-state assoc :level-number lix)
+                             (load-level! level))
+                           {:display "inline-block" :margin 10 :width "45%"}))
+                 l/levels)]])
 
 
 (defn victory-screen []

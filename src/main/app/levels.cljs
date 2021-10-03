@@ -1,29 +1,73 @@
 (ns app.levels)
 
-(def level-1 {:name "Tutorial"
+(def tutorial {:name "Tutorial"
               :sz 3
               :rounds [[:chicken]
                        [:chicken]]})
 
-(def level-2 {:name "The Hen House"
+(def hen-house {:name "The Hen House"
               :sz 4
               :rounds [[:chicken :chicken2]
                        [:chicken2]
                        [:chicken]]})
 
-(def level-3 {:name "Level 3"
-              :sz 5
-              :rounds [[:cow :chicken2]
-                       [:chicken]
-                       [:chicken]]})
+(def scramble {:name "Beakfast scramble"
+                :sz 4
+                :rounds [[:pig :chicken]
+                         [:chicken2 :chicken]
+                         [:chicken]]})
 
-(def level-4 {:name "Level 4"
+(def dairy-air {:name "Dairy air"
               :sz 5
-              :rounds [[:cow :chicken2 :chicken]
-                       [:chicken :chicken2]
-                       [:chicken]]})
+              :rounds [[:cow]
+                       [:cow]
+                       [:cow]]})
 
-(def levels [level-1
-             level-2
-             level-3
-             level-4])
+(def playtime {:name "Playtime"
+              :sz 5
+              :rounds [[:pig :cow] [:chicken] [:chicken2]]})
+
+(def bacon-and-eggs {:name "Bacon & Eggs"
+                  :sz 5
+                  :rounds [[:pig :pig]
+                           [:chicken :chicken]
+                           [:chicken :pig]]})
+
+(def clustercluck {:name "Clustercluck"
+                   :sz 5
+                   :rounds [[:chicken :chicken :chicken :chicken]
+                            [:chicken :chicken :chicken]
+                            [:chicken]
+                            [:chicken]]})
+(def milk-maids {:name "Milk Maids"
+                   :sz 8
+                   :rounds [[:cow :cow :cow]
+                            [:cow :cow :cow]
+                            [:cow :cow :cow]
+                            [:cow]]})
+
+(def what-the-cluck {:name "What The Cluck"
+                 :sz 8
+                 :rounds [[:chicken :chicken :chicken :chicken]
+                          [:chicken :chicken :chicken :chicken]
+                          [:chicken :chicken :chicken :chicken]
+                          [:chicken :chicken :chicken :chicken]
+                          [:chicken :chicken :chicken :chicken]
+                          [:chicken :chicken :chicken]]})
+
+(def crowd-control {:name "Crowd Control"
+                    :sz 6
+                    :rounds [[:chicken :chicken :chicken2 :pig :pig]
+                             [:chicken :cow]
+                             [:chicken]]})
+
+(def levels [tutorial
+             hen-house
+             scramble
+             dairy-air
+             bacon-and-eggs
+             playtime        
+             clustercluck
+             milk-maids
+             what-the-cluck
+             crowd-control])

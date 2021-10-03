@@ -5,7 +5,7 @@
 (def chicken {:name "Chickn" :anim-key "chicken-idle" :path [[-1 0] [0 1] [1 0] [0 -1]]})
 (def chicken2 {:name "Brown Chickn" :anim-key "chicken2-idle" :path [[1 0] [1 0] [-1 0] [-1 0]]})
 (def cow {:name "Cow" :anim-key "cow-idle" :path [[0 -1] [0 -1] [1 0] [1 0] [0 1] [0 1] [-1 0] [-1 0]]})
-(def pig {:name "Pig" :anim-key "pig-idle" :path [[0 -1] [0 -1] [1 0] [1 0] [0 1] [0 1] [-1 0] [-1 0]]})
+(def pig {:name "Pig" :anim-key "pig-idle" :path [[0 -1] [0 -1] [0 -1] [0 1] [0 1] [0 1]]})
 
 (def animal-types
   {:chicken chicken
@@ -144,7 +144,7 @@
                 (some #(= % final-pos) not-me-final-positions)
                 ; Two animals are "swapping" positions
                 (some #(= % p) not-me-rev-paths))
-           a)))
+           (list a final-pos))))
      animals)))
 
 (defn simulate [state]
@@ -156,6 +156,7 @@
       (-> state
           (assoc :game-over true)
           (assoc :collisions collisions)
-          (assoc :crazy-animal (first collisions)))
+          (assoc :animals new-animals)
+          (assoc :crazy-animal (first (first collisions))))
       (-> state
           (assoc :animals new-animals)))))
