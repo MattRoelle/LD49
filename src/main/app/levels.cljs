@@ -33,12 +33,22 @@
                            [:chicken :chicken]
                            [:chicken :pig]]})
 
+(def do-si-do {:name "Do si do"
+                :sz 3
+                :rounds [[:chicken] [:chicken] [:chicken] [:chicken] [:chicken]]})
+
+(def updown {:name "Up down side to side"
+             :sz 4
+             :rounds [[:pig :chicken2]
+                      [:pig :chicken2]]})
+
 (def clustercluck {:name "Clustercluck"
                    :sz 5
                    :rounds [[:chicken :chicken :chicken :chicken]
                             [:chicken :chicken :chicken]
                             [:chicken]
                             [:chicken]]})
+
 (def milk-maids {:name "Milk Maids"
                    :sz 8
                    :rounds [[:cow :cow :cow]
@@ -66,6 +76,8 @@
              scramble
              dairy-air
              bacon-and-eggs
+             updown
+             ;do-si-do
              playtime        
              clustercluck
              milk-maids

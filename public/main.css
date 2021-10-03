@@ -41,6 +41,7 @@ html {
     padding: 0;
     width: 100%;
     height: 100%;
+    overflow: hidden;
 }
 
 #app-root {
@@ -75,4 +76,14 @@ html {
 }
 .game-over-highlight {
     animation: game-over  infinite 500ms;
+}
+
+@keyframes farm-game-over {
+    0% { transform: rotate(0) }
+    15% { transform: rotate(40deg) }
+    100% { transform: rotate(0deg) }
+}
+
+.farm-game-over {
+    animation: farm-game-over ease-out 800ms;
 }

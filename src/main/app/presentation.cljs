@@ -1,3 +1,4 @@
+
 (ns app.presentation
   (:require [app.game :as g]
             [app.levels :as l]
@@ -37,6 +38,13 @@
 (defonce doing-game-over-animation (r/atom false))
 (defonce show-tutorial (r/atom true))
 
+(defonce started-playing-music? (atom false))
+(defonce theme (new js/Audio "./theme.mp3"))
+(defonce global-click (.addEventListener js/window "click"
+                                         #(when (not @started-playing-music?)
+                                            (aset theme "loop" true)
+                                            (.play theme)
+                                            (reset! started-playing-music? true))))
 (defn main-menu! []
   (reset! game-state initial-state)
   (reset! screen :title))
@@ -239,6 +247,7 @@
 (defn farm [state]
   (let [cell-size (get-cell-size state)]
     [:div {:id "farm-root"
+           :class (when (:game-over state) "farm-game-over")
            :style {:background-color dark-green
                    :background-image  (str
                                        "repeating-linear-gradient(
@@ -312,10 +321,10 @@
      [:div {:style {:width 50}} (anim (:anim-key atype))]
      [:p {:style {:margin-left 10 :font-size 32}} (str "x" (count animal-list))]]))
 
-(defn animal-groups [state]
+(defn animal-groups [state is-simulating]
   [:div
 
-   (button "Restart" #(load-level! (:level state)))
+   (when (and (not (:game-over state)) (not is-simulating)) (button "Restart" #(load-level! (:level state))))
    (when (:moving-animal state)
      (button "Cancel" #(swap! game-state assoc :moving-animal nil)))
    (map (fn [[k group]]
@@ -360,17 +369,14 @@
                  :border-radius 4
                  :flex 1
                  :height board-size}}
+   [:h2 (str "Day " (inc (:day state)) " of " (count (:rounds (:level state))))]
+   (when  @is-simulating (game-clock state))
+   (animal-groups state @is-simulating)
 
-   (animal-groups state)
-
-
-
-
-   (if (= @is-simulating true)
-     (game-clock state)
+   (when (= @is-simulating false)
      (if (:game-over state)
        [:div
-        [:h1 "Game Over"]
+        [:h3 {:style {:margin 20}} "Game Over"]
         (button "Try again" #(load-level! (:level state)))]
        (if (:win state)
          [:div
@@ -490,6 +496,9 @@
      (cursor-animal state)
      (when (and (:game-over state) (not @game-over)) (game-over! state))]]])
 
+(def text-outline "-2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000")
+(def text-outline2 "-1px -1px 0 white, 1px -1px 0 white, -1px 1px 0 white, 1px 1px 0 #000")
+
 (defn title-screen []
   [:div {:style {:display "flex"
                  :width "100%"
@@ -497,10 +506,37 @@
                  :justify-content "center"
                  :margin "0 auto"
                  :background "#56c0e3"}}
-   [:div {:style {:width 400 :text-align "center" :padding 40}}
-    [:h1 {:style {:margin-bottom 50}} "The Funny Farm"]
+   [:div {:style {:width 600 :height 600 :margin 30 :border "4px solid black" :text-align "center" :padding 40
+
+                  :background-color dark-green
+                  :background-image  (str
+                                      "repeating-linear-gradient(
+                                     45deg,
+                                     " light-green " 25%,
+                                     transparent 25%,
+                                     transparent 75%,
+                                     " light-green " 75%,
+                                     " light-green "),
+                                     repeating-linear-gradient(45deg, 
+                                     " light-green " 25%,
+                                     " dark-green " 25%,
+                                     " dark-green " 75%,
+                                     " light-green " 75%,
+                                     " light-green ")")
+                  :background-position (str "0 0, 50px 50px")
+                  :background-size  "100px 100px"}}
+    [:h1 {:style {:margin-bottom 50 :font-size 40 :color "white" :font-weight "bold" :text-shadow text-outline}} "The Funny Farm"]
+    
+    [:div {:style {:display "flex" :width "80%" :margin "0 auto"}}
+     (anim "chicken-idle")
+     (anim "chicken2-idle")
+     (anim "cow-idle")
+     (anim "pig-idle")]
     (button "Play" #(load-level! (first l/levels)))
-    (button "Levels" #(reset! screen :level-select))]])
+    (button "Levels" #(reset! screen :level-select))
+    [:div {:style {:background "white" :padding 5 :border-radius 10 :margin-top 30}}
+     [:p {:style {:color "black" :font-size 24}} "Made in 48hours for Ludum Dare 49"]
+     [:p {:style {:color "black" :font-size 20 :margin-top 10}} "By Matt Roelle"]]]])
 
 (defn level-select-screen []
   [:div {:style {:display "flex"
