@@ -11,6 +11,7 @@
   {:board []
    :sz 3
    :day 0
+   :level-number 0
    :animals []
    :moving-animal nil
    :game-over false})
@@ -20,6 +21,7 @@
 (def btn-primary "#edae47")
 (def btn-side "#9c5a28")
 (def btn-hl "#fac446")
+(def game-size 800)
 (def board-size 600)
 
 (def start-time 5)
@@ -32,6 +34,10 @@
 (defonce mouse-pos (r/atom [0 0]))
 (defonce board-hover-pos (r/atom nil))
 (defonce game-over (r/atom false))
+
+(defn main-menu! []
+  (reset! game-state initial-state)
+  (reset! screen :title))
 
 (defn add-animal-to-inventory! [atype]
   (swap! game-state g/add-animal-to-inventory atype))
@@ -69,14 +75,25 @@
          (reset! is-simulating false))))))
 
 (defn load-level! [level]
+  (reset! screen :in-game)
   (reset! game-over false)
   (reset! game-state
           (-> initial-state
+              (assoc :level-number (:level-number @game-state))
               (assoc :level level)
               (assoc :sz (:sz level))
-              (assoc :animals (mapv g/new-animal (map g/animal-types
-                                                      (first (:rounds level)))))))
-  (reset! screen :in-game))
+              (assoc :animals (mapv g/new-animal
+                                    (map g/animal-types
+                                         (first (:rounds level))))))))
+
+(defn next-level! []
+  (let [n (inc (:level-number @game-state))]
+    (if (< n (count l/levels))
+      (do
+        (swap! game-state assoc :level-number n)
+        (load-level! (get l/levels n))
+        (reset! screen :in-game))
+      (reset! screen :victory))))
 
 (defn anim [k]
   [(r/adapt-react-class Lottie/default)
@@ -107,7 +124,8 @@
                    :width cell-size
                    :height cell-size
                    :transition "all 100ms ease-out"
-                   :transform (str "translate3d(" (* cell-size (first (:pos a))) "px," (* cell-size (second (:pos a))) "px,0px)")}}
+                   :transform (str "translate3d(" (* cell-size (first (:pos a))) "px," (* cell-size (second (:pos a))) "px,0px) "
+                                   "scaleX(" (if (:flipped a) "-1" "1") ")")}}
      (anim "chicken-idle")]))
 
 (defn get-board-position [state pointer-event]
@@ -209,7 +227,7 @@
                    :background-size (str (* 2 cell-size) "px " (* 2 cell-size) "px")
                    :outline "4px solid black"
                    :border-radius 4
-                   :margin 10
+                   :margin-right 20
                    :width board-size
                    :height board-size
                    :transition "all 300ms ease-in-out"
@@ -274,13 +292,21 @@
           ":00"
           "PM"))])
 
+(defn header [state]
+  [:div {:style {:background-color "#dba469"
+                 :padding 20
+                 :margin-bottom 20
+                 :outline "4px solid black"
+                 :border-radius 4
+                 :width "100%"}}
+   [:h2 (:name (:level state))]])
+
 (defn sidebar [state]
   [:div {:style {:background-color "#dba469"
                  :padding 20
-                 :margin 10
                  :outline "4px solid black"
                  :border-radius 4
-                 :width 200
+                 :flex 1
                  :height board-size}}
 
    (animal-groups state)
@@ -294,7 +320,7 @@
        (if (:win state)
          [:div
           [:h1 "Level Complete"]
-          (button "Next Level!" #(load-level! l/level-1))]
+          (button "Next Level!" #(next-level!))]
          (start-day-btn state))))])
 
 ;; (defn rotate-vector [v n]
@@ -303,7 +329,6 @@
 ;;     (if (>= c n)
 ;;       out
 ;;       (recur out (inc c)))))
-
 
 
 (defn cursor-animal [state]
@@ -372,16 +397,22 @@
   [:div])
 
 (defn game [state]
-  [:div {:style {:display "flex"
-                 :width "100%"
+  [:div {:style {:width "100%"
                  :height "100%"
-                 :justify-content "center"
-                 :margin "0 auto"
+                 :padding-top 40
                  :background "#56c0e3"}}
-   (farm state)
-   (sidebar state)
-   (cursor-animal state)
-   (when (and (:game-over state) (not @game-over)) (game-over! state))])
+   [:div {:style {:width game-size
+                  :margin "0 auto"}}
+    (header state)
+    [:div {:style {:display "flex"
+                   :width "100%"
+                   :height "100%"
+                   :justify-content "center"
+                   :margin "0 auto"}}
+     (farm state)
+     (sidebar state)
+     (cursor-animal state)
+     (when (and (:game-over state) (not @game-over)) (game-over! state))]]])
 
 (defn title-screen []
   [:div {:style {:display "flex"
@@ -405,8 +436,20 @@
     [:p {:style {:margin-bottom 50}} "TODO: Instructional copy"]
     (button "Play" #(load-level! l/level-1))]])
 
+(defn victory-screen []
+  [:div {:style {:display "flex"
+                 :width "100%"
+                 :height "100%"
+                 :justify-content "center"
+                 :margin "0 auto"
+                 :background "#56c0e3"}}
+   [:div {:style {:width 400 :text-align "center" :padding 40}}
+    [:p {:style {:margin-bottom 50}} "Thanks for playing!"]
+    (button "Main Menu" #(main-menu!))]])
+
 (defn root []
   (cond
     (= @screen :title) (title-screen)
     (= @screen :tutorial) (tutorial-screen)
+    (= @screen :victory) (victory-screen)
     :else (game @game-state)))

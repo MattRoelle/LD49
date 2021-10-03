@@ -1,6 +1,6 @@
 (ns app.game)
 
-(defrecord FarmAnimal [id atype pos ix])
+(defrecord FarmAnimal [id atype pos ix flipped])
 (def chicken {:name "Chicken" :path [[-1 0] [0 1] [1 0] [0 -1]]})
 (def chicken2 {:name "Chicken2" :path [[1 0] [-1 0]]})
 
@@ -9,7 +9,7 @@
    :chicken2 chicken2})
 
 (defn new-animal [atype]
-  (FarmAnimal. (random-uuid) atype :inv 0))
+  (FarmAnimal. (random-uuid) atype :inv 0 false))
 
 (defn add-animal-to-inventory [state atype]
   (assoc state :animals
@@ -68,8 +68,10 @@
         level (:level state)
         rounds (:rounds level)
         round (get rounds day)]
+    (js/console.log "round" (clj->js round))
     (if round
       (-> state
+          (assoc :day day)
           (assoc :animals
                  (vec (concat
                        (:animals state)
@@ -98,11 +100,14 @@
     [pos new-pos]))
 
 (defn animal-move-along-path [animal path]
-  (FarmAnimal. (:id animal)
-               (:atype animal)
-               (last path)
-               (mod (inc (:ix animal))
-                    (count (:path (:atype animal))))))
+  (let [[sx sy] (first path)
+        [ex ey] (last path)]
+    (FarmAnimal. (:id animal)
+                 (:atype animal)
+                 [ex ey]
+                 (mod (inc (:ix animal))
+                      (count (:path (:atype animal))))
+                 (if (< ex sx) true false))))
 
 (defn drop-nth [n coll]
   (keep-indexed #(when (not= %1 n) %2) coll))
@@ -134,4 +139,5 @@
           (assoc :game-over true)
           (assoc :collisions collisions)
           (assoc :crazy-animal (first collisions)))
-      (assoc state :animals  new-animals))))
+      (-> state
+          (assoc :animals new-animals)))))

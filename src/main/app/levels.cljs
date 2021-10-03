@@ -10,3 +10,6 @@
               :rounds [[:chicken]
                        [:chicken]
                        [:chicken]]})
+
+(def levels [level-1
+             level-2])
