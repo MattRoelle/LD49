@@ -11,14 +11,15 @@
    :game-over false})
 
 (def game-state (r/atom initial-state))
+(def game-time (r/atom 6))
 (def is-simulating (r/atom false))
 (def screen (r/atom :in-game))
 
 (defn add-animal-to-inventory! [atype]
   (swap! game-state g/add-animal-to-inventory atype))
 
-(defn pick-up-animal! [id]
-  (swap! game-state assoc :moving-animal id))
+(defn pick-up-animal! [animal]
+  (swap! game-state assoc :moving-animal (:id animal)))
 
 (defn place-animal-on-board! [pos]
   (swap! game-state g/place-animal pos))
@@ -36,9 +37,11 @@
   ([] 
    (when-not @is-simulating 
      (reset! is-simulating true)
+     (reset! game-time 7)
      (step-sim-until-done! 0)))
   ([c]
    (step-game-state!)
+   (swap! game-time inc)
    (if (:game-over @game-state)
      (do
        (reset! is-simulating false)

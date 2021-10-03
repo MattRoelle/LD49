@@ -20,7 +20,8 @@
   (s/add-animal-to-inventory! g/chicken)
   (s/load-level! l/level-1)
   (s/load-level! l/level-2)
-  (js/console.log (clj->js @s/game-state)))
+  (js/console.log (clj->js @s/game-state))
+  (reset! s/is-simulating false))
 
 
 (defonce init
