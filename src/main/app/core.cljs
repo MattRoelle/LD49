@@ -5,12 +5,9 @@
             [app.game :as g]
             [app.presentation :as p]))
 
-(defn root []
-  [:div
-   (p/root)])
 
 (defn mount-app-root []
-  (rd/render [root]
+  (rd/render [p/root]
             (.getElementById js/document "app-root")))
 
 (mount-app-root)
@@ -22,8 +19,3 @@
   (p/load-level! l/level-2)
   (js/console.log (clj->js @p/game-state))
   (reset! p/is-simulating ))
-
-
-(defonce init
-  (do
-    (p/load-level! l/level-1)))

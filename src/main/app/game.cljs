@@ -67,7 +67,7 @@
   (let [day (inc (:day state))
         level (:level state)
         rounds (:rounds level)
-        round (nth rounds day)]
+        round (get rounds day)]
     (if round
       (-> state
           (assoc :animals

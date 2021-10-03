@@ -1,5 +1,6 @@
 (ns app.presentation
   (:require [app.game :as g]
+            [app.levels :as l]
             [reagent.core :as r]
             ["gsap" :as gsap]
             ["lottie-react" :as Lottie]))
@@ -24,13 +25,13 @@
 (def start-time 5)
 (def n-hours 12)
 
-(def game-state (r/atom initial-state))
-(def game-time (r/atom start-time))
-(def is-simulating (r/atom false))
-(def screen (r/atom :in-game))
-(def mouse-pos (r/atom [0 0]))
-(def board-hover-pos (r/atom nil))
-(def game-over (r/atom false))
+(defonce screen (r/atom :title))
+(defonce game-state (r/atom initial-state))
+(defonce game-time (r/atom start-time))
+(defonce is-simulating (r/atom false))
+(defonce mouse-pos (r/atom [0 0]))
+(defonce board-hover-pos (r/atom nil))
+(defonce game-over (r/atom false))
 
 (defn add-animal-to-inventory! [atype]
   (swap! game-state g/add-animal-to-inventory atype))
@@ -68,12 +69,14 @@
          (reset! is-simulating false))))))
 
 (defn load-level! [level]
+  (reset! game-over false)
   (reset! game-state
           (-> initial-state
               (assoc :level level)
               (assoc :sz (:sz level))
               (assoc :animals (mapv g/new-animal (map g/animal-types
-                                                      (first (:rounds level))))))))
+                                                      (first (:rounds level)))))))
+  (reset! screen :in-game))
 
 (defn anim [k]
   [(r/adapt-react-class Lottie/default)
@@ -108,13 +111,13 @@
      (anim "chicken-idle")]))
 
 (defn get-board-position [state pointer-event]
-  (let [client-rect (.getBoundingClientRect (.-target pointer-event))
+  (let [client-rect (.getBoundingClientRect (.getElementById js/document "farm-root"))
         offset-x (.-x client-rect)
         offset-y (.-y client-rect)
-        click-x (.-pageX pointer-event)
-        click-y (.-pageY pointer-event)
-        local-x (- click-x offset-x)
-        local-y (- click-y offset-y)
+        mouse-x (.-pageX pointer-event)
+        mouse-y (.-pageY pointer-event)
+        local-x (- mouse-x offset-x)
+        local-y (- mouse-y offset-y)
         cell-x (js/Math.floor (/ local-x (get-cell-size state)))
         cell-y (js/Math.floor (/ local-y (get-cell-size state)))]
     [cell-x cell-y]))
@@ -124,20 +127,25 @@
     (place-animal-on-board! board-position)))
 
 (defn farm-mouse-move-handler [state pointer-event]
-  (let [[bx by] (get-board-position state pointer-event)
+  (let [[hx hy] (get-board-position state pointer-event)
         max-size (- (:sz state) 1)
-        bx (min bx max-size)
-        by (min by max-size)
+        bx (min hx max-size)
+        by (min hy max-size)
         bx (max bx 0)
         by (max by 0)]
     (reset! board-hover-pos [bx by])))
 
 (defn directional-arrow [state [x y] [dx dy]]
   (let [cell-size (get-cell-size state)
-        transform (cond (< dx 0) "rotate(180deg) translate3d(0, -20px, 0)"
-                        (> dx 0) "rotate(0deg) translate3d(0, 20px, 0)"
-                        (< dy 0) "rotate(-90deg)  translate3d(-20px, 0, 0)"
-                        (> dy 0) "rotate(90deg)  translate3d(20px, 0, 0)")]
+        transform (cond (< dx 0) "rotate(180deg)"
+                        (> dx 0) "rotate(0deg)"
+                        (< dy 0) "rotate(-90deg)"
+                        (> dy 0) "rotate(90deg)")
+        ;; (cond (< dx 0) "rotate(180deg) translate3d(0, -20px, 0)"
+        ;;       (> dx 0) "rotate(0deg) translate3d(0, 20px, 0)"
+        ;;       (< dy 0) "rotate(-90deg)  translate3d(-20px, 0, 0)"
+        ;;       (> dy 0) "rotate(90deg)  translate3d(20px, 0, 0)")
+        ]
     [:div {:style {:position "absolute"
                    :left (* x cell-size)
                    :top (* y cell-size)
@@ -161,13 +169,23 @@
   (js/console.log "(:collisions state)" (clj->js (:collisions state)))
   (let [cell-size (get-cell-size state)]
     (map (fn [{[x y] :pos}]
-          [:div {:style {:position "absolute"
-                         :left (* x cell-size)
-                         :top (* y cell-size)
-                         :width cell-size
-                         :height cell-size
-                         :background-color "rgba(230, 40, 40, 0.3)"}}])
-        (:collisions state))))
+           [:div {:style {:position "absolute"
+                          :left (* x cell-size)
+                          :top (* y cell-size)
+                          :width cell-size
+                          :height cell-size
+                          :background-color "rgba(230, 40, 40, 0.3)"}}])
+         (:collisions state))))
+
+(defn hover-highlight [state]
+  (let [cell-size (get-cell-size state)
+        [x y] @board-hover-pos]
+    [:div {:style {:position "absolute"
+                   :width cell-size
+                   :height cell-size
+                   :border "4px solid white"
+                   :top (* y cell-size)
+                   :left (* x cell-size)}}]))
 
 (defn farm [state]
   (let [cell-size (get-cell-size state)]
@@ -200,6 +218,7 @@
            :on-mouse-move #(farm-mouse-move-handler state %)}
      (map (partial farm-animal state) (g/active-animals state))
      (animal-path-preview state)
+     (hover-highlight state)
      (when (:game-over state) (game-over-highlight state))]))
 
 (defn button [label on-click]
@@ -255,7 +274,7 @@
           ":00"
           "PM"))])
 
-(defn inventory [state]
+(defn sidebar [state]
   [:div {:style {:background-color "#dba469"
                  :padding 20
                  :margin 10
@@ -268,7 +287,15 @@
 
    (if (= @is-simulating true)
      (game-clock state)
-     (start-day-btn state))])
+     (if (:game-over state)
+       [:div
+        [:h1 "Game Over"]
+        (button "Try again" #(load-level! (:level state)))]
+       (if (:win state)
+         [:div
+          [:h1 "Level Complete"]
+          (button "Next Level!" #(load-level! l/level-1))]
+         (start-day-btn state))))])
 
 ;; (defn rotate-vector [v n]
 ;;   (loop [out (cons (rest v) (first v))
@@ -334,7 +361,8 @@
                  #(.to gsap/gsap target-dom #js{:rotation 360
                                                 :scale 0
                                                 :duration 0.75
-                                                :y 0})
+                                                :y (* 1000 (.random js/Math))
+                                                :x (* 1000 (.random js/Math))})
                  (* duration 600))))]
       (.to gsap/gsap a-dom
            #js {:rotation 720
@@ -345,15 +373,40 @@
 
 (defn game [state]
   [:div {:style {:display "flex"
-                 :width "auto"
+                 :width "100%"
+                 :height "100%"
                  :justify-content "center"
-                 :margin "0 auto"}}
+                 :margin "0 auto"
+                 :background "#56c0e3"}}
    (farm state)
-   (inventory state)
+   (sidebar state)
    (cursor-animal state)
    (when (and (:game-over state) (not @game-over)) (game-over! state))])
 
+(defn title-screen []
+  [:div {:style {:display "flex"
+                 :width "100%"
+                 :height "100%"
+                 :justify-content "center"
+                 :margin "0 auto"
+                 :background "#56c0e3"}}
+   [:div {:style {:width 400 :text-align "center" :padding 40}}
+    [:h1 {:style {:margin-bottom 50}} "The Funny Farm"]
+    (button "Play" #(reset! screen :tutorial))]])
+
+(defn tutorial-screen []
+  [:div {:style {:display "flex"
+                 :width "100%"
+                 :height "100%"
+                 :justify-content "center"
+                 :margin "0 auto"
+                 :background "#56c0e3"}}
+   [:div {:style {:width 400 :text-align "center" :padding 40}}
+    [:p {:style {:margin-bottom 50}} "TODO: Instructional copy"]
+    (button "Play" #(load-level! l/level-1))]])
+
 (defn root []
   (cond
-    (= @screen :loading) (loading)
+    (= @screen :title) (title-screen)
+    (= @screen :tutorial) (tutorial-screen)
     :else (game @game-state)))
