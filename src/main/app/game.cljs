@@ -2,10 +2,11 @@
 
 (defrecord FarmAnimal [id atype pos ix])
 (def chicken {:name "Chicken" :path [[-1 0] [0 1] [1 0] [0 -1]]})
-(def chicken2 {:name "Chicken" :path [[-1 0] [-1 0] [-1 0] [1 0] [1 0] [1 0]]})
+(def chicken2 {:name "Chicken2" :path [[1 0] [-1 0]]})
 
 (def animal-types
-  {:chicken chicken})
+  {:chicken chicken
+   :chicken2 chicken2})
 
 (defn new-animal [atype]
   (FarmAnimal. (random-uuid) atype :inv 0))
@@ -14,9 +15,38 @@
   (assoc state :animals
          (conj (:animals state) (new-animal atype))))
 
+(defn walk-path
+  ([animal] (walk-path (:path (:atype animal)) (:pos animal)))
+  ([path origin]
+   (loop [[x y] origin
+          out [[x y] (first path)]
+          ix 0]
+     (let [node (nth path ix)
+           x (+ x (first node))
+           y (+ y (second node))]
+       (if (< ix (- (count path) 1))
+         (recur [x y]
+                (apply concat [out [[x y] node]])
+                (inc ix))
+         (mapv vec (partition 2 out)))))))
+
 (defn can-place-animal-here [state animal pos]
-  (let [existing-animal (first (filter #(= (:pos %) pos) (:animals state)))]
-    (not existing-animal)))
+  (let [existing-animal (first (filter #(= (:pos %) pos) (:animals state)))
+        walked-path (walk-path (:path (:atype animal)) pos)
+        max (- (:sz state) 1)
+        out-of-bounds-tiles (filter (fn [[[x y]]] (or (< x 0)
+                                                      (< y 0)
+                                                      (> x max)
+                                                      (> y max))) walked-path)]
+    (js/console.log "walked-path" (clj->js walked-path))
+    (and (not existing-animal)
+         (= (count out-of-bounds-tiles) 0))))
+
+(defn get-moving-animal [state]
+  (when-let [moving-animal-id (:moving-animal state)]
+    (when-let [out (first (filter #(= (:id %) moving-animal-id)
+                                  (:animals state)))]
+      out)))
 
 (defn get-animal-by-id-indexed [state id]
   (first (keep-indexed #(when (= (:id %2) id) [%1 %2]) (:animals state))))
@@ -49,6 +79,7 @@
 
 (defn active-animals [state]
   (filter #(not= :inv (:pos %)) (:animals state)))
+
 
 (defn inv-animals [state]
   (filter #(= :inv (:pos %)) (:animals state)))
@@ -98,10 +129,9 @@
         paths (map animal-get-turn-path animals)
         collisions (get-colliding-animals animals paths)
         new-animals (vec (map-indexed #(animal-move-along-path %2 (nth paths %1)) animals))]
-    (js/console.log (clj->js collisions))
     (if (> (count collisions) 0)
       (-> state
           (assoc :game-over true)
           (assoc :collisions collisions)
-          (assoc :animals  new-animals))
+          (assoc :crazy-animal (first collisions)))
       (assoc state :animals  new-animals))))

@@ -3,7 +3,6 @@
             [reagent.dom :as rd]
             [app.levels :as l]
             [app.game :as g]
-            [app.state :as s]
             [app.presentation :as p]))
 
 (defn root []
@@ -12,18 +11,19 @@
 
 (defn mount-app-root []
   (rd/render [root]
-             (.getElementById js/document "app-root")))
+            (.getElementById js/document "app-root")))
 
 (mount-app-root)
 
 (comment
-  (s/add-animal-to-inventory! g/chicken)
-  (s/load-level! l/level-1)
-  (s/load-level! l/level-2)
-  (js/console.log (clj->js @s/game-state))
-  (reset! s/is-simulating false))
+  (g/walk-path [[-1 0] [-1 0] [0 1]] [4 4])
+  (p/add-animal-to-inventory! g/chicken)
+  (p/load-level! l/level-1)
+  (p/load-level! l/level-2)
+  (js/console.log (clj->js @p/game-state))
+  (reset! p/is-simulating ))
 
 
 (defonce init
   (do
-    (s/load-level! l/level-1)))
+    (p/load-level! l/level-1)))

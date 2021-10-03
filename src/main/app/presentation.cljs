@@ -1,14 +1,18 @@
 (ns app.presentation
   (:require [app.game :as g]
-            [app.state :as s]
             [reagent.core :as r]
+            ["gsap" :as gsap]
             ["lottie-react" :as Lottie]))
 
-(js/console.log Lottie)
+(js/console.log gsap)
 
-(defn anim [k]
-  [(r/adapt-react-class Lottie/default)
-   {:animationData (aget (.-animations (.-ld49 js/window)) k)}])
+(def initial-state
+  {:board []
+   :sz 3
+   :day 0
+   :animals []
+   :moving-animal nil
+   :game-over false})
 
 (def light-green "#92cf72")
 (def dark-green "#7ab05d")
@@ -17,7 +21,69 @@
 (def btn-hl "#fac446")
 (def board-size 600)
 
+(def start-time 5)
+(def n-hours 12)
+
+(def game-state (r/atom initial-state))
+(def game-time (r/atom start-time))
+(def is-simulating (r/atom false))
+(def screen (r/atom :in-game))
 (def mouse-pos (r/atom [0 0]))
+(def board-hover-pos (r/atom nil))
+(def game-over (r/atom false))
+
+(defn add-animal-to-inventory! [atype]
+  (swap! game-state g/add-animal-to-inventory atype))
+
+(defn pick-up-animal! [animal]
+  (swap! game-state assoc :moving-animal (:id animal)))
+
+(defn place-animal-on-board! [pos]
+  (swap! game-state g/place-animal pos))
+
+(defn step-game-state! []
+  (swap! game-state g/simulate))
+
+(defn next-day! []
+  (swap! game-state g/next-day))
+
+(defn set-screen! [s]
+  (reset! screen s))
+
+(defn step-sim-until-done!
+  ([]
+   (when-not @is-simulating
+     (reset! is-simulating true)
+     (reset! game-time start-time)
+     (step-sim-until-done! 0)))
+  ([c]
+   (step-game-state!)
+   (swap! game-time inc)
+   (if (:game-over @game-state)
+     (reset! is-simulating false)
+     (if (<= c (+ start-time n-hours))
+       (js/setTimeout #(step-sim-until-done! (inc c)) 150)
+       (do
+         (next-day!)
+         (reset! is-simulating false))))))
+
+(defn load-level! [level]
+  (reset! game-state
+          (-> initial-state
+              (assoc :level level)
+              (assoc :sz (:sz level))
+              (assoc :animals (mapv g/new-animal (map g/animal-types
+                                                      (first (:rounds level))))))))
+
+(defn anim [k]
+  [(r/adapt-react-class Lottie/default)
+   {:animationData (aget (.-animations (.-ld49 js/window)) k)}])
+
+(defn arrow []
+  [:div {:style {:width "100%" :height "100%"}
+         :dangerouslySetInnerHTML {:__html
+                                   "<svg id=\"Layer_1\" data-name=\"Layer 1\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 420.79 331.3\"><defs><style>.cls-1{fill:#fff;stroke:#58595b;stroke-linecap:round;stroke-linejoin:round;stroke-width:11px;}</style></defs><polygon class=\"cls-1\" points=\"255.14 325.8 255.14 214.89 5.5 250.24 5.5 81.06 255.14 116.41 255.14 5.5 415.29 165.65 255.14 325.8\"/></svg>"}}])
+
 (defonce mousemove-hook
   (.addEventListener
    js/window
@@ -28,9 +94,11 @@
 (defn get-cell-size [state]
   (/ board-size (:sz state)))
 
-(defn animal [state a]
-  (let [cell-size (get-cell-size state)]
-    [:div {:key (:id a)
+(defn farm-animal [state a]
+  (let [cell-size (get-cell-size state)
+        id (:id a)]
+    [:div {:id id
+           :key id
            :style {:position "absolute"
                    :z-index 50
                    :width cell-size
@@ -53,9 +121,8 @@
 
 (defn farm-click-handler [state pointer-event]
   (let [board-position (get-board-position state pointer-event)]
-    (s/place-animal-on-board! board-position)))
+    (place-animal-on-board! board-position)))
 
-(def board-hover-pos (r/atom nil))
 (defn farm-mouse-move-handler [state pointer-event]
   (let [[bx by] (get-board-position state pointer-event)
         max-size (- (:sz state) 1)
@@ -65,9 +132,47 @@
         by (max by 0)]
     (reset! board-hover-pos [bx by])))
 
+(defn directional-arrow [state [x y] [dx dy]]
+  (let [cell-size (get-cell-size state)
+        transform (cond (< dx 0) "rotate(180deg) translate3d(0, -20px, 0)"
+                        (> dx 0) "rotate(0deg) translate3d(0, 20px, 0)"
+                        (< dy 0) "rotate(-90deg)  translate3d(-20px, 0, 0)"
+                        (> dy 0) "rotate(90deg)  translate3d(20px, 0, 0)")]
+    [:div {:style {:position "absolute"
+                   :left (* x cell-size)
+                   :top (* y cell-size)
+                  ; :opacity 0.5
+                   :width (/ cell-size 2)
+                   :height (/ cell-size 2)
+                   :transform transform}}
+     (arrow)]))
+
+(defn animal-path-preview [state]
+  (when-let [moving-animal (g/get-moving-animal state)]
+    ;; (js/console.log (clj->js @board-hover-pos))
+    (let [path (:path (:atype moving-animal))
+          walked-path (g/walk-path path @board-hover-pos)]
+      ;; (js/console.log (clj->js path))
+      (map (fn [input]
+             (directional-arrow state (first input) (second input)))
+           walked-path))))
+
+(defn game-over-highlight [state]
+  (js/console.log "(:collisions state)" (clj->js (:collisions state)))
+  (let [cell-size (get-cell-size state)]
+    (map (fn [{[x y] :pos}]
+          [:div {:style {:position "absolute"
+                         :left (* x cell-size)
+                         :top (* y cell-size)
+                         :width cell-size
+                         :height cell-size
+                         :background-color "rgba(230, 40, 40, 0.3)"}}])
+        (:collisions state))))
+
 (defn farm [state]
   (let [cell-size (get-cell-size state)]
-    [:div {:style {:background-color dark-green
+    [:div {:id "farm-root"
+           :style {:background-color dark-green
                    :background-image  (str
                                        "repeating-linear-gradient(
                                      45deg,
@@ -93,7 +198,9 @@
                    :position "relative"}
            :on-click #(farm-click-handler state %)
            :on-mouse-move #(farm-mouse-move-handler state %)}
-     (map (partial animal state) (g/active-animals state))]))
+     (map (partial farm-animal state) (g/active-animals state))
+     (animal-path-preview state)
+     (when (:game-over state) (game-over-highlight state))]))
 
 (defn button [label on-click]
   [:div {:class "btn"
@@ -124,7 +231,7 @@
                 ;;   (= (:moving-animal state) (:id a))
                 ;;    {:border "2px solid blue"})
                  )
-         :on-click #(s/pick-up-animal! (first animal-list))}
+         :on-click #(pick-up-animal! (first animal-list))}
    [:div {:style {:width 50}} (anim "chicken-idle")]
    [:p {:style {:margin-left 10 :font-size 32}} (str "x" (count animal-list))]])
 
@@ -136,14 +243,17 @@
 (defn start-day-btn [state]
   (if (> (count (g/inv-animals state)) 0)
     [:p {:style {:text-align "center" :font-size 22 :margin-top 20}} "Finish placing animals"]
-    (button "Start Day" #(s/step-sim-until-done!))))
+    (button "Start Day" #(step-sim-until-done!))))
 
-(defn game-time [state]
-  [:p {:style {:text-align "center" :font-size 22 :margin-top 20}} (str @s/game-time ":00" (if (< @s/game-time 12) "AM" "PM"))])
-
-(defn arrow []
-  [:div {:dangerouslySetInnerHTML {:__html
-                                   "<svg id=\"Layer_1\" data-name=\"Layer 1\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 420.79 331.3\"><defs><style>.cls-1{fill:#fff;stroke:#58595b;stroke-linecap:round;stroke-linejoin:round;stroke-width:11px;}</style></defs><polygon class=\"cls-1\" points=\"255.14 325.8 255.14 214.89 5.5 250.24 5.5 81.06 255.14 116.41 255.14 5.5 415.29 165.65 255.14 325.8\"/></svg>"}}])
+(defn game-clock [state]
+  [:p {:style {:text-align "center"
+               :font-size 22
+               :margin-top 20}}
+   (if (< @game-time 12)
+     (str @game-time ":00" "AM")
+     (str (if (> @game-time 12)  (- @game-time 12) "12")
+          ":00"
+          "PM"))])
 
 (defn inventory [state]
   [:div {:style {:background-color "#dba469"
@@ -156,8 +266,8 @@
 
    (animal-groups state)
 
-   (if (= @s/is-simulating true)
-     (game-time state)
+   (if (= @is-simulating true)
+     (game-clock state)
      (start-day-btn state))])
 
 ;; (defn rotate-vector [v n]
@@ -167,35 +277,71 @@
 ;;       out
 ;;       (recur out (inc c)))))
 
-(defn animal-path-preview [state animal]
-  (let [path (:path (:atype animal))]
-        ;path (rotate-vector starting-path 2)]
-    (js/console.log "p"(clj->js path))
-    [:div]))
+
 
 (defn cursor-animal [state]
   (let [cell-size (get-cell-size state)
-        moving-animal-id (:moving-animal state)
-        moving-animal (when moving-animal-id
-                        (first
-                         (filter #(= (:id %) moving-animal-id)
-                                 (:animals state))))]
+        moving-animal (g/get-moving-animal state)]
     (when moving-animal
       [:div
-       (animal-path-preview state moving-animal)
        [:div {:id "moving-animal"
-                   :style {:pointer-events "none"
-                           :position "fixed"
-                           :top (* -0.5 cell-size)
-                           :left (* -0.5 cell-size)
-                           :z-index 100
-                           :width cell-size
-                           :height cell-size
-                           :transform (str "translate3d(" (first @mouse-pos) "px," (second @mouse-pos) "px,0px) scale(0.5, 0.5)")}}
-             (anim "chicken-idle")]])))
+              :style {:pointer-events "none"
+                      :position "fixed"
+                      :top (* -0.5 cell-size)
+                      :left (* -0.5 cell-size)
+                      :z-index 100
+                      :width cell-size
+                      :height cell-size
+                      :transform (str "translate3d(" (first @mouse-pos) "px," (second @mouse-pos) "px,0px) scale(0.5, 0.5)")}}
+        (anim "chicken-idle")]])))
 
 (defn loading []
   [:h1 "Loading..."])
+
+(defn game-over! [state]
+  (reset! game-over true)
+  (let [a (:crazy-animal state)
+        animals (:animals state)
+        other-animals (filter #(not= (:id %) (:id a)) animals)
+        animals-dom (apply merge
+                           (map (fn [x]
+                                  {(:id x) (.getElementById js/document (:id x))})
+                                animals))
+        a-dom (get animals-dom (:id a))
+        farm-root-dom (.getElementById js/document "farm-root")
+        fr-cr (.getBoundingClientRect farm-root-dom)
+        ox (.-x fr-cr)
+        oy (.-y fr-cr)]
+    (letfn [(done [])
+            (on-complete [ix]
+              (if (< ix (- (count other-animals) 1))
+                (tween-to-animal (inc ix))
+                (done)))
+            (tween-to-animal [ix]
+              (let [target (nth other-animals ix)
+                    target-dom (get animals-dom (:id target))
+                    cr (.getBoundingClientRect target-dom)
+                    tx (- (.-x cr) ox)
+                    ty (- (.-y cr) oy)
+                    duration 0.8]
+                (.to gsap/gsap a-dom
+                     #js {:x tx
+                          :y ty
+                          :ease "back.inOut(10)"
+                          :duration duration
+                          :onComplete #(on-complete ix)})
+                (js/setTimeout
+                 #(.to gsap/gsap target-dom #js{:rotation 360
+                                                :scale 0
+                                                :duration 0.75
+                                                :y 0})
+                 (* duration 600))))]
+      (.to gsap/gsap a-dom
+           #js {:rotation 720
+                :duration 1
+                :delay 0.5
+                :onComplete #(tween-to-animal 0)})))
+  [:div])
 
 (defn game [state]
   [:div {:style {:display "flex"
@@ -204,9 +350,10 @@
                  :margin "0 auto"}}
    (farm state)
    (inventory state)
-   (cursor-animal state)])
+   (cursor-animal state)
+   (when (and (:game-over state) (not @game-over)) (game-over! state))])
 
 (defn root []
   (cond
-    (= @s/screen :loading) (loading)
-    :else (game @s/game-state)))
+    (= @screen :loading) (loading)
+    :else (game @game-state)))

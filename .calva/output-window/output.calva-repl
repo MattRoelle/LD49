@@ -5,8 +5,8 @@
 ; Happy coding! ♥️
 
 ; Jacking in...
-; nREPL Connection was closed
 ; Starting Jack-in Terminal: npx.cmd shadow-cljs -d cider/cider-nrepl:0.26.0 watch :app
+; nREPL Connection was closed
 ; Hooking up nREPL sessions...
 ; Connected session: clj
 ; TIPS: 
