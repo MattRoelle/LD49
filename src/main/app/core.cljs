@@ -13,9 +13,9 @@
 (mount-app-root)
 
 (comment
-  (g/walk-path [[-1 0] [-1 0] [0 1]] [4 4])
   (p/add-animal-to-inventory! g/chicken)
+  (g/rotate-vector [[-1 0] [1 0] [0 1]] 0)
   (p/load-level! l/level-1)
-  (p/load-level! l/level-2)
+  (p/load-level! l/level-4)
   (js/console.log (clj->js @p/game-state))
   (reset! p/is-simulating ))

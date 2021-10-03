@@ -26,3 +26,118 @@ clj꞉shadow.user꞉> 
 ;    (There is a button in the status bar for this)
 ; Jack-in done.
 cljs꞉cljs.user꞉> 
+{:board [], :sz 4, :day 0, :level-number 0, :animals [#app.game.FarmAnimal{:id #uuid "6637a6b9-8ee4-403c-82b7-bde5b9406d8e", :atype {:name "Chickn", :anim-key "chicken-idle", :path [[-1 0] [0 1] [1 0] [0 -1]]}, :pos :inv, :ix 0, :flipped false} #app.game.FarmAnimal{:id #uuid "cc6e3e2f-19f1-43ee-8f61-b82d64b44364", :atype {:name "Brown Chickn", :anim-key "chicken2-idle", :path [[1 0] [1 0] [-1 0] [-1 0]]}, :pos :inv, :ix 0, :flipped false}], :moving-animal nil, :game-over false, :level {:name "Level 2", :sz 4, :rounds [[:chicken :chicken2] [:chicken2 :chicken2] [:chicken]]}}
+cljs꞉app.core꞉> 
+{:board [], :sz 4, :day 0, :level-number 0, :animals [#app.game.FarmAnimal{:id #uuid "504d55c6-05dc-4aa8-abe0-80f9268c5339", :atype {:name "Chickn", :anim-key "chicken-idle", :path [[-1 0] [0 1] [1 0] [0 -1]]}, :pos :inv, :ix 0, :flipped false} #app.game.FarmAnimal{:id #uuid "37222cb3-c7ce-4170-8364-cc28149b8a9f", :atype {:name "Brown Chickn", :anim-key "chicken2-idle", :path [[1 0] [1 0] [-1 0] [-1 0]]}, :pos :inv, :ix 0, :flipped false}], :moving-animal nil, :game-over false, :level {:name "Level 2", :sz 4, :rounds [[:chicken :chicken2] [:chicken2 :chicken2] [:chicken]]}}
+cljs꞉app.core꞉> 
+{:board [], :sz 5, :day 0, :level-number 0, :animals [#app.game.FarmAnimal{:id #uuid "01d2c400-cbf7-4456-ba91-77831ffb811a", :atype {:name "Cow", :anim-key "cow-idle", :path [[0 -1] [0 -1] [1 0] [1 0] [0 1] [0 1] [-1 0] [-1 0]]}, :pos :inv, :ix 0, :flipped false} #app.game.FarmAnimal{:id #uuid "ffab7858-2447-499e-815d-4d05874a26a3", :atype {:name "Brown Chickn", :anim-key "chicken2-idle", :path [[1 0] [1 0] [-1 0] [-1 0]]}, :pos :inv, :ix 0, :flipped false}], :moving-animal nil, :game-over false, :level {:name "Level 3", :sz 5, :rounds [[:cow :chicken2] [:chicken] [:chicken]]}}
+cljs꞉app.core꞉> 
+{:board [], :sz 5, :day 0, :level-number 0, :animals [#app.game.FarmAnimal{:id #uuid "0910646a-a379-4d3b-9f74-6ecbcfc9cb2e", :atype {:name "Cow", :anim-key "cow-idle", :path [[0 -1] [0 -1] [1 0] [1 0] [0 1] [0 1] [-1 0] [-1 0]]}, :pos :inv, :ix 0, :flipped false} #app.game.FarmAnimal{:id #uuid "9454b52a-b0fc-4dc6-8406-6f4c15d03513", :atype {:name "Brown Chickn", :anim-key "chicken2-idle", :path [[1 0] [1 0] [-1 0] [-1 0]]}, :pos :inv, :ix 0, :flipped false} #app.game.FarmAnimal{:id #uuid "82b2e2ec-2adb-47ba-bfb4-1788d601e796", :atype {:name "Chickn", :anim-key "chicken-idle", :path [[-1 0] [0 1] [1 0] [0 -1]]}, :pos :inv, :ix 0, :flipped false}], :moving-animal nil, :game-over false, :level {:name "Level 4", :sz 5, :rounds [[:cow :chicken2 :chicken] [:chicken :chicken2] [:chicken]]}}
+cljs꞉app.core꞉> 
+{:board [], :sz 5, :day 0, :level-number 0, :animals [#app.game.FarmAnimal{:id #uuid "ff409926-8d46-44de-a04c-a68fcb02e1fc", :atype {:name "Cow", :anim-key "cow-idle", :path [[0 -1] [0 -1] [1 0] [1 0] [0 1] [0 1] [-1 0] [-1 0]]}, :pos :inv, :ix 0, :flipped false} #app.game.FarmAnimal{:id #uuid "c8009ded-8eb2-4243-a232-e124b8ef7e0f", :atype {:name "Brown Chickn", :anim-key "chicken2-idle", :path [[1 0] [1 0] [-1 0] [-1 0]]}, :pos :inv, :ix 0, :flipped false} #app.game.FarmAnimal{:id #uuid "6e1e31a0-6505-4643-9c0f-ee0f570c742f", :atype {:name "Chickn", :anim-key "chicken-idle", :path [[-1 0] [0 1] [1 0] [0 -1]]}, :pos :inv, :ix 0, :flipped false}], :moving-animal nil, :game-over false, :level {:name "Level 4", :sz 5, :rounds [[:cow :chicken2 :chicken] [:chicken :chicken2] [:chicken]]}}
+cljs꞉app.core꞉> 
+{:board [], :sz 5, :day 0, :level-number 0, :animals [#app.game.FarmAnimal{:id #uuid "14bf3472-748c-4672-aa14-bc6b1587888b", :atype {:name "Cow", :anim-key "cow-idle", :path [[0 -1] [0 -1] [1 0] [1 0] [0 1] [0 1] [-1 0] [-1 0]]}, :pos :inv, :ix 0, :flipped false} #app.game.FarmAnimal{:id #uuid "ec63403f-4a4e-461e-8797-68ca81d00770", :atype {:name "Brown Chickn", :anim-key "chicken2-idle", :path [[1 0] [1 0] [-1 0] [-1 0]]}, :pos :inv, :ix 0, :flipped false} #app.game.FarmAnimal{:id #uuid "e9b9e9d3-6d90-4464-9799-9572e626eb99", :atype {:name "Chickn", :anim-key "chicken-idle", :path [[-1 0] [0 1] [1 0] [0 -1]]}, :pos :inv, :ix 0, :flipped false}], :moving-animal nil, :game-over false, :level {:name "Level 4", :sz 5, :rounds [[:cow :chicken2 :chicken] [:chicken :chicken2] [:chicken]]}}
+cljs꞉app.core꞉> 
+(([1 0] [0 1]) -1 0)
+cljs꞉app.core꞉> 
+[([1 0] [0 1]) [-1 0]]
+cljs꞉app.core꞉> 
+[([1 0] [0 1]) [-1 0]]
+cljs꞉app.core꞉> 
+[([1 0] [0 1]) [-1 0]]
+cljs꞉app.core꞉> 
+[([1 0] [0 1]) [-1 0]]
+cljs꞉app.core꞉> 
+[([1 0] [0 1]) [-1 0]]
+cljs꞉app.core꞉> 
+[([1 0] [0 1]) [-1 0]]
+cljs꞉app.core꞉> 
+[([1 0] [0 1]) [-1 0]]
+cljs꞉app.core꞉> 
+[([1 0] [0 1]) [-1 0]]
+cljs꞉app.core꞉> 
+[([1 0] [0 1]) [-1 0]]
+cljs꞉app.core꞉> 
+[([1 0] [0 1]) [-1 0]]
+cljs꞉app.core꞉> 
+[([1 0] [0 1]) [-1 0]]
+cljs꞉app.core꞉> 
+:repl/exception!
+; 
+; Execution error (Error) at (<cljs repl>:1).
+Invalid arity: 0
+cljs꞉app.core꞉> 
+#'app.game/rotate-vector
+cljs꞉app.game꞉> 
+([-1 0] [1 0] [0 1])
+cljs꞉app.core꞉> 
+([-1 0] [1 0] [0 1])
+cljs꞉app.core꞉> 
+#'app.game/rotate-vector
+cljs꞉app.game꞉> 
+([-1 0] [1 0] [0 1])
+cljs꞉app.core꞉> 
+([-1 0] [1 0] [0 1])
+cljs꞉app.core꞉> 
+[[-1 0] [1 0] [0 1]]
+cljs꞉app.core꞉> 
+#'app.game/rotate-vector
+cljs꞉app.game꞉> 
+[[-1 0] [1 0] [0 1]]
+cljs꞉app.core꞉> 
+([-1 0] [1 0] [0 1])
+cljs꞉app.core꞉> 
+#'app.game/rotate-vector
+cljs꞉app.game꞉> 
+([-1 0] [1 0] [0 1])
+cljs꞉app.core꞉> 
+(0 [-1 0] [1 0] [0 1])
+cljs꞉app.core꞉> 
+#'app.game/rotate-vector
+cljs꞉app.game꞉> 
+[-1 0 ([1 0] [0 1])]
+cljs꞉app.core꞉> 
+#'app.game/rotate-vector
+cljs꞉app.game꞉> 
+[[-1 0] ([1 0] [0 1])]
+cljs꞉app.core꞉> 
+#'app.game/rotate-vector
+cljs꞉app.game꞉> 
+[[-1 0] [[1 0] [0 1]]]
+cljs꞉app.core꞉> 
+#'app.game/rotate-vector
+cljs꞉app.game꞉> 
+[-1 0 [[1 0] [0 1]]]
+cljs꞉app.core꞉> 
+#'app.game/rotate-vector
+cljs꞉app.game꞉> 
+[-1 0 ([1 0] [0 1])]
+cljs꞉app.core꞉> 
+#'app.game/rotate-vector
+cljs꞉app.game꞉> 
+(-1 0 [1 0] [0 1])
+cljs꞉app.core꞉> 
+#'app.game/rotate-vector
+cljs꞉app.game꞉> 
+([-1 0] [1 0] [0 1])
+cljs꞉app.core꞉> 
+#'app.game/rotate-vector
+cljs꞉app.game꞉> 
+(([1 0] [0 1]) -1 0)
+cljs꞉app.core꞉> 
+#'app.game/rotate-vector
+cljs꞉app.game꞉> 
+([1 0] [0 1] [-1 0])
+cljs꞉app.core꞉> 
+{:board [], :sz 4, :day 0, :level-number 0, :animals [#app.game.FarmAnimal{:id #uuid "e5c60145-2d28-45f3-b86b-8d68ea9cafe3", :atype {:name "Chickn", :anim-key "chicken-idle", :path [[-1 0] [0 1] [1 0] [0 -1]]}, :pos :inv, :ix 0, :flipped false}], :moving-animal nil, :game-over false, :level {:name "Level 1", :sz 4, :rounds [[:chicken] [:chicken] [:chicken]]}}
+cljs꞉app.core꞉> 
+[[-1 0] [1 0] [0 1]]
+cljs꞉app.core꞉> 
+([1 0] [0 1] [-1 0])
+cljs꞉app.core꞉> 
+([0 1] [-1 0] [1 0])
+cljs꞉app.core꞉> 
+([-1 0] [1 0] [0 1])
+cljs꞉app.core꞉> 
+([1 0] [0 1] [-1 0])
+cljs꞉app.core꞉> 

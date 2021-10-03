@@ -1,12 +1,17 @@
 (ns app.game)
 
 (defrecord FarmAnimal [id atype pos ix flipped])
-(def chicken {:name "Chicken" :path [[-1 0] [0 1] [1 0] [0 -1]]})
-(def chicken2 {:name "Chicken2" :path [[1 0] [-1 0]]})
+
+(def chicken {:name "Chickn" :anim-key "chicken-idle" :path [[-1 0] [0 1] [1 0] [0 -1]]})
+(def chicken2 {:name "Brown Chickn" :anim-key "chicken2-idle" :path [[1 0] [1 0] [-1 0] [-1 0]]})
+(def cow {:name "Cow" :anim-key "cow-idle" :path [[0 -1] [0 -1] [1 0] [1 0] [0 1] [0 1] [-1 0] [-1 0]]})
+(def pig {:name "Pig" :anim-key "pig-idle" :path [[0 -1] [0 -1] [1 0] [1 0] [0 1] [0 1] [-1 0] [-1 0]]})
 
 (def animal-types
   {:chicken chicken
-   :chicken2 chicken2})
+   :chicken2 chicken2
+   :cow cow
+   :pig pig})
 
 (defn new-animal [atype]
   (FarmAnimal. (random-uuid) atype :inv 0 false))
@@ -15,24 +20,32 @@
   (assoc state :animals
          (conj (:animals state) (new-animal atype))))
 
+(defn rotate-vector [v n]
+  (loop [out v
+         c 0]
+    (if (< c n)
+      (recur (concat (rest out) [(first out)]) (inc c))
+      out)))
+
 (defn walk-path
-  ([animal] (walk-path (:path (:atype animal)) (:pos animal)))
-  ([path origin]
-   (loop [[x y] origin
-          out [[x y] (first path)]
-          ix 0]
-     (let [node (nth path ix)
-           x (+ x (first node))
-           y (+ y (second node))]
-       (if (< ix (- (count path) 1))
-         (recur [x y]
-                (apply concat [out [[x y] node]])
-                (inc ix))
-         (mapv vec (partition 2 out)))))))
+  ([animal] (walk-path (:path (:atype animal)) (:pos animal) (:ix animal)))
+  ([path origin ix]
+   (let [path (rotate-vector path ix)]
+     (loop [[x y] origin
+            out [[x y] (first path)]
+            ix 0]
+       (let [node (nth path ix)
+             x (+ x (first node))
+             y (+ y (second node))]
+         (if (< ix (- (count path) 1))
+           (recur [x y]
+                  (apply concat [out [[x y] node]])
+                  (inc ix))
+           (mapv vec (partition 2 out))))))))
 
 (defn can-place-animal-here [state animal pos]
   (let [existing-animal (first (filter #(= (:pos %) pos) (:animals state)))
-        walked-path (walk-path (:path (:atype animal)) pos)
+        walked-path (walk-path (:path (:atype animal)) pos 0)
         max (- (:sz state) 1)
         out-of-bounds-tiles (filter (fn [[[x y]]] (or (< x 0)
                                                       (< y 0)

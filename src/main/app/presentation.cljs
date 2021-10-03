@@ -25,7 +25,7 @@
 (def board-size 600)
 
 (def start-time 5)
-(def n-hours 12)
+(def n-hours 8)
 
 (defonce screen (r/atom :title))
 (defonce game-state (r/atom initial-state))
@@ -114,19 +114,7 @@
 (defn get-cell-size [state]
   (/ board-size (:sz state)))
 
-(defn farm-animal [state a]
-  (let [cell-size (get-cell-size state)
-        id (:id a)]
-    [:div {:id id
-           :key id
-           :style {:position "absolute"
-                   :z-index 50
-                   :width cell-size
-                   :height cell-size
-                   :transition "all 100ms ease-out"
-                   :transform (str "translate3d(" (* cell-size (first (:pos a))) "px," (* cell-size (second (:pos a))) "px,0px) "
-                                   "scaleX(" (if (:flipped a) "-1" "1") ")")}}
-     (anim "chicken-idle")]))
+
 
 (defn get-board-position [state pointer-event]
   (let [client-rect (.getBoundingClientRect (.getElementById js/document "farm-root"))
@@ -159,29 +147,58 @@
                         (> dx 0) "rotate(0deg)"
                         (< dy 0) "rotate(-90deg)"
                         (> dy 0) "rotate(90deg)")
+        farm-dom (.getElementById js/document "farm-root")
+        cr (.getBoundingClientRect farm-dom)
+        cx (.-x cr)
+        cy (.-y cr)
         ;; (cond (< dx 0) "rotate(180deg) translate3d(0, -20px, 0)"
         ;;       (> dx 0) "rotate(0deg) translate3d(0, 20px, 0)"
         ;;       (< dy 0) "rotate(-90deg)  translate3d(-20px, 0, 0)"
         ;;       (> dy 0) "rotate(90deg)  translate3d(20px, 0, 0)")
         ]
-    [:div {:style {:position "absolute"
-                   :left (* x cell-size)
-                   :top (* y cell-size)
+    [:div {:style {:position "fixed"
+                   :left (+ cx  (* x cell-size))
+                   :top (+ cy (* y cell-size))
                   ; :opacity 0.5
                    :width (/ cell-size 2)
                    :height (/ cell-size 2)
                    :transform transform}}
      (arrow)]))
 
-(defn animal-path-preview [state]
-  (when-let [moving-animal (g/get-moving-animal state)]
-    ;; (js/console.log (clj->js @board-hover-pos))
-    (let [path (:path (:atype moving-animal))
-          walked-path (g/walk-path path @board-hover-pos)]
+(defn animal-path-preview [state a pos]
+  (let [path (:path (:atype a))
+        walked-path (g/walk-path path pos (:ix a))]
       ;; (js/console.log (clj->js path))
-      (map (fn [input]
-             (directional-arrow state (first input) (second input)))
-           walked-path))))
+    (map (fn [input]
+           (directional-arrow state (first input) (second input)))
+         walked-path)))
+
+(defn moving-animal-path-preview [state]
+  (when-let [moving-animal (g/get-moving-animal state)]
+    (animal-path-preview state moving-animal @board-hover-pos)))
+
+(defn farm-animal [state a]
+  (let [cell-size (get-cell-size state)
+        [x y] (:pos a)
+        x (* cell-size x)
+        y (* cell-size y)
+        id (:id a)]
+    [:div {:class (str "farm-animal "
+                       (when (and (not @game-over)
+                                  (not @is-simulating))
+                         "idle"))}
+     [:div {:id id
+            :key id
+            :style {:position "absolute"
+                    :z-index 50
+                    :width cell-size
+                    :height cell-size
+                    :transition "all 100ms ease-out"
+                    :transform (str "translate3d(" x "px," y "px,0px) "
+                                    "scaleX(" (if (:flipped a) "-1" "1") ")")}}
+      (anim (:anim-key (:atype a)))]
+     [:div {:class "path-preview" :position "fixed" :top 0 :left 0}
+      (animal-path-preview state a (:pos a))]]))
 
 (defn game-over-highlight [state]
   (js/console.log "(:collisions state)" (clj->js (:collisions state)))
@@ -235,7 +252,7 @@
            :on-click #(farm-click-handler state %)
            :on-mouse-move #(farm-mouse-move-handler state %)}
      (map (partial farm-animal state) (g/active-animals state))
-     (animal-path-preview state)
+     (moving-animal-path-preview state)
      (hover-highlight state)
      (when (:game-over state) (game-over-highlight state))]))
 
@@ -256,21 +273,23 @@
    [:p {:style {:font-size 18}} label]])
 
 (defn inventory-animal [state animal-list]
-  [:div {:key (:name (:atype (first animal-list)))
-         :style (merge
-                 {:background-color "rgba(0, 0, 0, 0.1)"
-                  :padding 5
-                  :margin-top 10
-                  :display "flex"
-                  :justify-content "center"
-                  :align-items "center"}
+  (let [a (first animal-list)
+        atype (:atype a)]
+    [:div {:key (:name atype)
+           :style (merge
+                   {:background-color "rgba(0, 0, 0, 0.1)"
+                    :padding 5
+                    :margin-top 10
+                    :display "flex"
+                    :justify-content "center"
+                    :align-items "center"}
                 ;;  (when
                 ;;   (= (:moving-animal state) (:id a))
                 ;;    {:border "2px solid blue"})
-                 )
-         :on-click #(pick-up-animal! (first animal-list))}
-   [:div {:style {:width 50}} (anim "chicken-idle")]
-   [:p {:style {:margin-left 10 :font-size 32}} (str "x" (count animal-list))]])
+                   )
+           :on-click #(pick-up-animal! (first animal-list))}
+     [:div {:style {:width 50}} (anim (:anim-key atype))]
+     [:p {:style {:margin-left 10 :font-size 32}} (str "x" (count animal-list))]]))
 
 (defn animal-groups [state]
   (map (fn [[k group]]
@@ -323,12 +342,7 @@
           (button "Next Level!" #(next-level!))]
          (start-day-btn state))))])
 
-;; (defn rotate-vector [v n]
-;;   (loop [out (cons (rest v) (first v))
-;;          c 0]
-;;     (if (>= c n)
-;;       out
-;;       (recur out (inc c)))))
+
 
 
 (defn cursor-animal [state]
@@ -345,7 +359,7 @@
                       :width cell-size
                       :height cell-size
                       :transform (str "translate3d(" (first @mouse-pos) "px," (second @mouse-pos) "px,0px) scale(0.5, 0.5)")}}
-        (anim "chicken-idle")]])))
+        (anim (:anim-key (:atype moving-animal)))]])))
 
 (defn loading []
   [:h1 "Loading..."])
@@ -396,7 +410,7 @@
                 :onComplete #(tween-to-animal 0)})))
   [:div])
 
-(defn game [state]
+(defn game-screen [state]
   [:div {:style {:width "100%"
                  :height "100%"
                  :padding-top 40
@@ -452,4 +466,4 @@
     (= @screen :title) (title-screen)
     (= @screen :tutorial) (tutorial-screen)
     (= @screen :victory) (victory-screen)
-    :else (game @game-state)))
+    :else (game-screen @game-state)))

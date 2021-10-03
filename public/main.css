@@ -55,3 +55,11 @@ html {
 .btn:hover {
     background-color: white;
 }
+
+.farm-animal .path-preview {
+    display :none;
+}
+
+.farm-animal.idle:hover .path-preview {
+    display: block;
+}
